@@ -1,0 +1,471 @@
+{% extends '../../dist/templates/dashboard/base.html' %}
+{% block page_title %}CLC Data - Dashboard{% endblock %}
+{% load static %}
+
+{% block content %}
+   <body>
+      <header id="header" class="header fixed-top d-flex align-items-center">
+         <div class="d-flex align-items-center justify-content-between"> <a href="index.html" class="logo d-flex align-items-center"> <img src={%static 'images/logo_svg.svg'%} alt=""> <span class="d-none d-lg-block">CLC Data</span> </a> <i class="bi bi-list toggle-sidebar-btn"></i></div>
+         <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+               <li class="nav-item dropdown pe-3">
+                  <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown"> <img src={%static 'images/logo_2022.png'%}  alt="Profile" class="rounded-circle"> <span class="d-none d-md-block dropdown-toggle ps-2">{{user.username}}</span> </a>
+                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                     <li class="dropdown-header">
+                        <h6>{{user.username}}</h6>
+                        <span>{{user.branch}}</span>
+                     </li>
+                     <li>
+                        <hr class="dropdown-divider">
+                     </li>
+                     <li> <a class="dropdown-item d-flex align-items-center" href=""> <i class="bi bi-person"></i> <span>My Profile</span> </a></li>
+                     <li>
+                        <hr class="dropdown-divider">
+                     </li>
+                     <li> <a class="dropdown-item d-flex align-items-center" href=""> <i class="bi bi-gear"></i> <span>Account Settings</span> </a></li>
+                     <li>
+                        <hr class="dropdown-divider">
+                     </li>
+                     <li> <a class="dropdown-item d-flex align-items-center" href="{%url 'accounts:logout'%}"> <i class="bi bi-box-arrow-right"></i> <span>Sign Out</span> </a></li>
+                  </ul>
+               </li>
+            </ul>
+         </nav>
+      </header>
+      <aside id="sidebar" class="sidebar">
+         <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item"> <a class="nav-link " href="index.html"> <i class="bi bi-grid"></i> <span>Dashboard</span> </a></li>
+            </ul>
+      </aside>
+      <main id="main" class="main">
+         <div class="pagetitle">
+            <h1>Dashboard</h1>
+            <nav>
+               <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                  <li class="breadcrumb-item active">Dashboard</li>
+               </ol>
+            </nav>
+         </div>
+         <section class="section dashboard">
+            <div class="row">
+               <div class="col-lg-8">
+                  <div class="row">
+                     <div class="col-xxl-4 col-md-6">
+                        <div class="card info-card sales-card">
+                           <div class="card-body">
+                              <h5 class="card-title">Attendance <span>| Today</span></h5>
+                              <div class="d-flex align-items-center">
+                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
+                                 <div class="ps-3">
+                                    <h6>{{latest_data.total}}</h6>
+                                    {%if pre_sun_percent <= 0%}
+                                    <span class="text-danger small pt-1 fw-bold">{{pre_sun_percent}}%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                                    {%else%}
+                                    <span class="text-success small pt-1 fw-bold">{{pre_sun_percent}}%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                                    {% endif %}
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-xxl-4 col-md-6">
+                        <div class="card info-card revenue-card">
+                           <div class="card-body">
+                              <h5 class="card-title">Attendance <span>| This Month</span></h5>
+                              <div class="d-flex align-items-center">
+                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
+                                 <div class="ps-3">
+                                    <h6>{{month_data.total__sum}}</h6>
+                                    {% if month_inc_percent <= 0 %}
+                                    <span class="text-danger small pt-1 fw-bold">{{month_inc_percent}}%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                                 {% else %}
+                                 <span class="text-success small pt-1 fw-bold">{{month_inc_percent}}%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                                    {% endif %}
+                                    </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-xxl-4 col-xl-12">
+                        <div class="card info-card customers-card">
+                           <div class="card-body">
+                              <h5 class="card-title">First Timers <span>| This Year</span></h5>
+                              <div class="d-flex align-items-center">
+                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
+                                 <div class="ps-3">
+                                    <h6>1244</h6>
+                                    <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-12">
+                        <div class="card">
+                           <div class="card-body">
+                              <h5 class="card-title">Reports <span>/Today</span></h5>
+                              <div class="row">
+                                 <div class="col-lg-6">
+                                    <canvas id="myChart" width="300" height="250"></canvas>
+                                    <script>
+                                    var ctx = document.getElementById('myChart').getContext('2d');
+                                    var myChart = new Chart(ctx, {
+                                        type: 'pie',
+                                        data: {
+                                            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                            datasets: [{
+                                                label: '# of Votes',
+                                                data: [12, 19, 3, 5, 2, 3],
+                                                backgroundColor: [
+                                                    'rgba(255, 99, 132, 1)',
+                                                    'rgba(54, 162, 235, 1)',
+                                                    'rgba(255, 206, 86, 1)',
+                                                    'rgba(75, 192, 192, 1)',
+                                                    'rgba(153, 102, 255, 1)',
+                                                    'rgba(255, 159, 64, 1)'
+                                                ],
+                                                borderColor: [
+                                                    'rgba(255, 99, 132, 1)',
+                                                    'rgba(54, 162, 235, 1)',
+                                                    'rgba(255, 206, 86, 1)',
+                                                    'rgba(75, 192, 192, 1)',
+                                                    'rgba(153, 102, 255, 1)',
+                                                    'rgba(255, 159, 64, 1)'
+                                                ],
+                                                borderWidth: 1
+                                            }]
+                                        },
+                                        options: {
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true
+                                                }
+                                            }
+                                        }
+                                    });
+                                    </script>
+                                    </div>
+                                 <div class="col-lg-6">
+                                    <canvas id="myChart3" width="300" height="250"></canvas>
+                                 <script>
+                                 var ctx = document.getElementById('myChart3').getContext('2d');
+                                 var myChart = new Chart(ctx, {
+                                     type: 'pie',
+                                     data: {
+                                         labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                         datasets: [{
+                                             label: '# of Votes',
+                                             data: [12, 19, 3, 5, 2, 3],
+                                             backgroundColor: [
+                                                 'rgba(255, 99, 132, 1)',
+                                                 'rgba(54, 162, 235, 1)',
+                                                 'rgba(255, 206, 86, 1)',
+                                                 'rgba(75, 192, 192, 1)',
+                                                 'rgba(153, 102, 255, 1)',
+                                                 'rgba(255, 159, 64, 1)'
+                                             ],
+                                             borderColor: [
+                                                 'rgba(255, 99, 132, 1)',
+                                                 'rgba(54, 162, 235, 1)',
+                                                 'rgba(255, 206, 86, 1)',
+                                                 'rgba(75, 192, 192, 1)',
+                                                 'rgba(153, 102, 255, 1)',
+                                                 'rgba(255, 159, 64, 1)'
+                                             ],
+                                             borderWidth: 1
+                                         }]
+                                     },
+                                     options: {
+                                         scales: {
+                                             y: {
+                                                 beginAtZero: true
+                                             }
+                                         }
+                                     }
+                                 });
+                                 </script>
+                              
+                                 </div>
+                              </div>
+                              <div class="row">
+                                 <div class="col-lg-6">
+                                    <canvas id="myChart4" width="300" height="250"></canvas>
+                                    <script>
+                                    var ctx = document.getElementById('myChart4').getContext('2d');
+                                    var myChart = new Chart(ctx, {
+                                        type: 'pie',
+                                        data: {
+                                            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                            datasets: [{
+                                                label: '# of Votes',
+                                                data: [12, 19, 3, 5, 2, 3],
+                                                backgroundColor: [
+                                                    'rgba(255, 99, 132, 1)',
+                                                    'rgba(54, 162, 235, 1)',
+                                                    'rgba(255, 206, 86, 1)',
+                                                    'rgba(75, 192, 192, 1)',
+                                                    'rgba(153, 102, 255, 1)',
+                                                    'rgba(255, 159, 64, 1)'
+                                                ],
+                                                borderColor: [
+                                                    'rgba(255, 99, 132, 1)',
+                                                    'rgba(54, 162, 235, 1)',
+                                                    'rgba(255, 206, 86, 1)',
+                                                    'rgba(75, 192, 192, 1)',
+                                                    'rgba(153, 102, 255, 1)',
+                                                    'rgba(255, 159, 64, 1)'
+                                                ],
+                                                borderWidth: 1
+                                            }]
+                                        },
+                                        options: {
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true
+                                                }
+                                            }
+                                        }
+                                    });
+                                    </script>
+                                    </div>
+                                 <div class="col-lg-6">
+                                    <canvas id="myChart5" width="300" height="250"></canvas>
+                                 <script>
+                                 var ctx = document.getElementById('myChart5').getContext('2d');
+                                 var myChart = new Chart(ctx, {
+                                     type: 'pie',
+                                     data: {
+                                         labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                         datasets: [{
+                                             label: '# of Votes',
+                                             data: [12, 19, 3, 5, 2, 3],
+                                             backgroundColor: [
+                                                 'rgba(255, 99, 132, 1)',
+                                                 'rgba(54, 162, 235, 1)',
+                                                 'rgba(255, 206, 86, 1)',
+                                                 'rgba(75, 192, 192, 1)',
+                                                 'rgba(153, 102, 255, 1)',
+                                                 'rgba(255, 159, 64, 1)'
+                                             ],
+                                             borderColor: [
+                                                 'rgba(255, 99, 132, 1)',
+                                                 'rgba(54, 162, 235, 1)',
+                                                 'rgba(255, 206, 86, 1)',
+                                                 'rgba(75, 192, 192, 1)',
+                                                 'rgba(153, 102, 255, 1)',
+                                                 'rgba(255, 159, 64, 1)'
+                                             ],
+                                             borderWidth: 1
+                                         }]
+                                     },
+                                     options: {
+                                         scales: {
+                                             y: {
+                                                 beginAtZero: true
+                                             }
+                                         }
+                                     }
+                                 });
+                                 </script>
+                              
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-12">
+                        <div class="card recent-sales overflow-auto">
+                           <div class="card-body">
+                              <h5 class="card-title">Recent Attendance </span></h5>
+                              <table class="table table-borderless datatable">
+                                 <thead>
+                                    <tr>
+                                       <th scope="col">Date</th>
+                                       <th scope="col">Male</th>
+                                       <th scope="col">Female</th>
+                                       <th scope="col">Children</th>
+                                       <th scope="col">First Timers</th>
+                                       <th scope="col">Consistency</th>
+                                       <th scope="col">Status</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    <tr>
+                                       <th scope="row"><a href="#">27/02/2023</a></th>
+                                       <td>64</td>
+                                       <td>64</td>
+                                       <td>64</td>
+                                       <td>64</td>
+                                       <td>64</td>
+                                       <td><span class="badge bg-success">Approved</span></td>
+                                    </tr>
+                                    <tr>
+                                      <th scope="row"><a href="#">27/02/2023</a></th>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td><span class="badge bg-success">Approved</span></td>
+                                    </tr>
+                                    <tr>
+                                      <th scope="row"><a href="#">27/02/2023</a></th>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td><span class="badge bg-success">Approved</span></td>
+                                    </tr>
+                                    <tr>
+                                      <th scope="row"><a href="#">27/02/2023</a></th>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td><span class="badge bg-success">Approved</span></td>
+                                    </tr>
+                                    <tr>
+                                      <th scope="row"><a href="#">27/02/2023</a></th>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td>64</td>
+                                      <td><span class="badge bg-warning">pending</span></td>
+                                    </tr>
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col-lg-4">
+                  <div class="card">
+                     <div class="filter">
+                        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                           <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                           </li>
+                           <li><a class="dropdown-item" href="#">Today</a></li>
+                           <li><a class="dropdown-item" href="#">This Month</a></li>
+                           <li><a class="dropdown-item" href="#">This Year</a></li>
+                        </ul>
+                     </div>
+                     <div class="card-body">
+                        <h5 class="card-title">Recent Activity <span>| Today</span></h5>
+                        <div class="activity">
+                           <div class="activity-item d-flex">
+                              <div class="activite-label">32 min</div>
+                              <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
+                              <div class="activity-content"> Quia quae rerum <a href="#" class="fw-bold text-dark">explicabo officiis</a> beatae</div>
+                           </div>
+                           <div class="activity-item d-flex">
+                              <div class="activite-label">56 min</div>
+                              <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
+                              <div class="activity-content"> Voluptatem blanditiis blanditiis eveniet</div>
+                           </div>
+                           <div class="activity-item d-flex">
+                              <div class="activite-label">2 hrs</div>
+                              <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
+                              <div class="activity-content"> Voluptates corrupti molestias voluptatem</div>
+                           </div>
+                           <div class="activity-item d-flex">
+                              <div class="activite-label">1 day</div>
+                              <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
+                              <div class="activity-content"> Tempore autem saepe <a href="#" class="fw-bold text-dark">occaecati voluptatem</a> tempore</div>
+                           </div>
+                           <div class="activity-item d-flex">
+                              <div class="activite-label">2 days</div>
+                              <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
+                              <div class="activity-content"> Est sit eum reiciendis exercitationem</div>
+                           </div>
+                           <div class="activity-item d-flex">
+                              <div class="activite-label">4 weeks</div>
+                              <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
+                              <div class="activity-content"> Dicta dolorem harum nulla eius. Ut quidem quidem sit quas</div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="card">
+                     <div class="filter">
+                        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                           <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                           </li>
+                           <li><a class="dropdown-item" href="#">Today</a></li>
+                           <li><a class="dropdown-item" href="#">This Month</a></li>
+                           <li><a class="dropdown-item" href="#">This Year</a></li>
+                        </ul>
+                     </div>
+                     <div class="card-body pb-0">
+                        <h5 class="card-title">Financial Report <span>| This Month</span></h5>
+<canvas id="myChart1" width="400" height="400px"></canvas>
+<script>
+var ctx = document.getElementById('myChart1').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        datasets: [{
+            label: '# of Votes',
+            data: [12, 19, 3, 5, 2, 3],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+                  </div>
+                  <div class="card">
+                     <div class="filter">
+                        <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                           <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                           </li>
+                           <li><a class="dropdown-item" href="#">Today</a></li>
+                           <li><a class="dropdown-item" href="#">This Month</a></li>
+                           <li><a class="dropdown-item" href="#">This Year</a></li>
+                        </ul>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </section>
+      </main>
+      <footer id="footer" class="footer">
+         <div class="copyright"> &copy; Copyright <strong><span>CLC</span></strong>. All Rights Reserved</div>
+         <div class="credits"> with love <a href="">CLC Data Team</a></div>
+      </footer>
+      <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>  
+             
+{%endblock%}
