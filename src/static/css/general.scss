@@ -1,0 +1,54 @@
+body{
+    font-family: "Inter", sans-serif;
+
+}
+.glassmorphism {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .glassmorphism form {
+    margin-top: 30px;
+    
+  }
+
+  .glassmorphism form label {
+    font-size: 1em;
+    font-weight: 300;
+  }
+
+  .glassmorphism form input[type="text"],
+  .glassmorphism form input[type="password"],
+  .glassmorphism form input[type="email"] {
+    border: none;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 20px;
+    box-shadow: none;
+    width: 300px;
+  }
+
+  .glassmorphism form input[type="text"]:focus,
+  .glassmorphism form input[type="password"]:focus,
+  .glassmorphism form input[type="email"]:focus {
+    box-shadow: none;
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  .glassmorphism form button[type="submit"] {
+    background-color: $secondary;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 500;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+
+  .glassmorphism form button[type="submit"]:hover {
+    background-color: $secondary;
+  }

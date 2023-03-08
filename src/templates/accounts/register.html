@@ -1,0 +1,26 @@
+{% extends '../../dist/templates/dashboard/base.html' %}
+{% block page_title %}CLC DATA{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class=" mt-5 container  d-xl-flex justify-content-center align-items-center vh-100">
+    <div class="glassmorphism shadow p-3 mb-5 bg-body-primary rounded">
+        <div class="text-center mb-4">
+            <img src={%static 'images/logo_2022.png' %} alt="Logo" height="52">
+        </div>
+        {% include '../../templates/includes/alerts.html' %}
+        <form action="" method="post" id="register-form" autocomplete="off">
+            {% csrf_token %}
+            {%for field in forms%}
+        <div class="form-group">
+          {{field.label_tag}}
+          {{field}}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary d-block mx-auto">
+          Register Branch
+        </button>
+      </form>
+    </div>
+  </div>
+{%endblock%}

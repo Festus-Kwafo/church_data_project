@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&display=swap');
+// Color Varibles
+$black: #000;
+$white: #fff;
+$primary: #26A9E1;
+$secondary: #366FB6;
+$accent: #212120;
+$footer-color: #1E3E66;
+
+$box-shadow: 0.1rem .2rem 0.5rem 0.2rem rgba($black, .15);
+// $input-border-color: 0;
+
+.font-14{
+ font-size: 20px; 
+}
+
+// $pagination-active-bg: $black;
+
+.btn-minus{
+    background-color: $primary;
+    color: $primary;
+    
+}

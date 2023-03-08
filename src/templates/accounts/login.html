@@ -1,0 +1,47 @@
+{% extends '../../dist/templates/dashboard/base.html' %}
+{% block page_title %}CLC Data{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="glassmorphism shadow p-3 mb-5 bg-body-tertiary rounded">
+        <div class="text-center mb-4">
+            <img src={%static 'images/logo_2022.png' %} alt="Logo" height="52">
+        </div>
+        {% include '../../templates/includes/alerts.html' %}
+        <form action="" method="post" autocomplete="off">
+            {% csrf_token %}
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input
+            type="text"
+            name="username"
+            id="username"
+            class="form-control"
+            placeholder="Enter your username"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-control"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" name="remember_me" type="checkbox" id="inlineCheckbox1" value="option1">
+            <label class="form-check-label" for="inlineCheckbox1">Remember Me</label>
+          </div>
+        <button type="submit" class="btn btn-primary d-block mx-auto">
+          Login
+        </button>
+      </form>
+    </div>
+  </div>
+
+{%endblock%}
