@@ -1,10 +1,10 @@
-# Church Attendance and Offering Data System
+# Church Data System
 
 This is a web-based system that allows church administrators to input attendance and offering data for their branches. The main church administrator can then approve the data submitted by the various branch administrators. The system also features a dashboard that presents the data in graphs using Chart.js. This project was built using Django.
 
 ## Installation
 
-1. Clone the repository: `git clone https://github.com/<your-username>/<your-repo-name>.git`
+1. Clone the repository: `git clone https://github.com/Festus-Kwafo/church_data_project.git`
 2. Move to the src directory: `cd src`
 2. Install the required packages: `pip install -r requirements.txt`
 3. Run the server: `python manage.py runserver`
@@ -27,9 +27,6 @@ If you would like to contribute to this project, please follow these steps:
 4. Push to the branch: `git push origin feature-branch`
 5. Create a pull request
 
-## Credits
-
-This project was developed by <your-name> as part of <your-course> at <your-school>. Special thanks to <your-instructor> for providing guidance and support throughout the development process.
 
 ## License
 
@@ -37,4 +34,4 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-If you have any questions or comments about this project, please feel free to contact me at <your-email-address>.
+If you have any questions or comments about this project, please feel free to contact me at festuskwafo@gmail.com.
