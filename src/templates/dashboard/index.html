@@ -3,13 +3,13 @@
 {% load static %}
 
 {% block content %}
-   <body>
+
       <header id="header" class="header fixed-top d-flex align-items-center">
-         <div class="d-flex align-items-center justify-content-between"> <a href="index.html" class="logo d-flex align-items-center"> <img src={%static 'images/logo_svg.svg'%} alt=""> <span class="d-none d-lg-block">CLC Data</span> </a> <i class="bi bi-list toggle-sidebar-btn"></i></div>
+         <div class="d-flex align-items-center justify-content-between"> <a href="index.html" class="logo d-flex align-items-center"> <img src="{%static 'images/logo_svg.svg'%}" alt=""> <span class="d-none d-lg-block">CLC Data</span> </a> <i class="bi bi-list toggle-sidebar-btn"></i></div>
          <nav class="header-nav ms-auto">
             <ul class="d-flex align-items-center">
                <li class="nav-item dropdown pe-3">
-                  <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown"> <img src={%static 'images/logo_2022.png'%}  alt="Profile" class="rounded-circle"> <span class="d-none d-md-block dropdown-toggle ps-2">{{user.username}}</span> </a>
+                  <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown"> <img src="{%static 'images/logo_2022.png'%}"  alt="Profile" class="rounded-circle"> <span class="d-none d-md-block dropdown-toggle ps-2">{{user.username}}</span> </a>
                   <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                      <li class="dropdown-header">
                         <h6>{{user.username}}</h6>
@@ -53,16 +53,27 @@
                   <div class="row">
                      <div class="col-xxl-4 col-md-6">
                         <div class="card info-card sales-card">
+                           <forms action="post">
+                           <div class="filter">
+                                 <select name="filter_attendance" id="filter_attendance" class="form-select border-0 input-sm" aria-label="Default select example">
+                                    <option selected disabled>Filter</option>
+                                    <option value="today">Today</option>
+                                    <option value="this_month">This Month</option>
+                                    <option value="this_year">This Year</option>
+                                 </select>
+                           </div>
+                           </forms>
+
                            <div class="card-body">
-                              <h5 class="card-title">Attendance <span>| Today</span></h5>
+                              <h5 class="card-title">Attendance</h5>
                               <div class="d-flex align-items-center">
                                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
                                  <div class="ps-3">
-                                    <h6>{{latest_data.total}}</h6>
+                                    <h6 id="total_attendance">{{latest_data}}</h6>
                                     {%if pre_sun_percent <= 0%}
-                                    <span class="text-danger small pt-1 fw-bold">{{pre_sun_percent}}%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                                    <span class="text-danger small pt-1 fw-bold" id="percentage">{{pre_sun_percent}}%</span>
                                     {%else%}
-                                    <span class="text-success small pt-1 fw-bold">{{pre_sun_percent}}%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                                    <span class="text-success small pt-1 fw-bold" id="percentage">{{pre_sun_percent}}%</span>
                                     {% endif %}
                                  </div>
                               </div>
@@ -71,16 +82,27 @@
                      </div>
                      <div class="col-xxl-4 col-md-6">
                         <div class="card info-card revenue-card">
+                           <forms action="post">
+                           <div class="filter">
+                                 <select name="filter_attendance" id="filter_first_timers" class="form-select border-0 input-sm" aria-label="Default select example">
+                                    <option selected disabled>Filter</option>
+                                    <option value="today">Today</option>
+                                    <option value="this_month">This Month</option>
+                                    <option value="this_year">This Year</option>
+                                 </select>
+                           </div>
+                           </forms>
+
                            <div class="card-body">
-                              <h5 class="card-title">Attendance <span>| This Month</span></h5>
+                              <h5 class="card-title">First Timers </h5>
                               <div class="d-flex align-items-center">
                                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
                                  <div class="ps-3">
-                                    <h6>{{month_data.total__sum}}</h6>
-                                    {% if month_inc_percent <= 0 %}
-                                    <span class="text-danger small pt-1 fw-bold">{{month_inc_percent}}%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                                    <h6 id="total_first_timers">{{first_timers_data.first_timers__sum}}</h6>
+                                    {% if first_timers_pre_sun_percent <= 0 %}
+                                    <span class="text-danger small pt-1 fw-bold" id="percentage_first_timers">{{first_timers_pre_sun_percent}}%</span> <span class="text-muted small pt-2 ps-1">increase</span>
                                  {% else %}
-                                 <span class="text-success small pt-1 fw-bold">{{month_inc_percent}}%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                                 <span class="text-success small pt-1 fw-bold" id="percentage_first_timers">{{first_timers_pre_sun_percent}}%</span> <span class="text-muted small pt-2 ps-1">increase</span>
                                     {% endif %}
                                     </div>
                               </div>
@@ -89,13 +111,27 @@
                      </div>
                      <div class="col-xxl-4 col-xl-12">
                         <div class="card info-card customers-card">
+                           <forms action="post">
+                           <div class="filter">
+                                 <select name="filter_attendance" id="filter_consistency" class="form-select border-0 input-sm" aria-label="Default select example">
+                                    <option selected disabled>Filter</option>
+                                    <option value="today">Today</option>
+                                    <option value="this_month">This Month</option>
+                                    <option value="this_year">This Year</option>
+                                 </select>
+                           </div>
+                           </forms>
                            <div class="card-body">
                               <h5 class="card-title">First Timers <span>| This Year</span></h5>
                               <div class="d-flex align-items-center">
                                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
                                  <div class="ps-3">
-                                    <h6>1244</h6>
-                                    <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span>
+                                    <h6 id="total_consistency">{{latest_data}}</h6>
+                                    {%if pre_sun_percent <= 0%}
+                                    <span class="text-danger small pt-1 fw-bold" id="percentage_consistency">{{pre_sun_percent}}%</span>
+                                    {%else%}
+                                    <span class="text-success small pt-1 fw-bold" id="percentage_consistency">{{pre_sun_percent}}%</span>
+                                    {% endif %}
                                  </div>
                               </div>
                            </div>
@@ -461,11 +497,124 @@ var myChart = new Chart(ctx, {
                </div>
             </div>
          </section>
-      </main>
       <footer id="footer" class="footer">
          <div class="copyright"> &copy; Copyright <strong><span>CLC</span></strong>. All Rights Reserved</div>
          <div class="credits"> with love <a href="">CLC Data Team</a></div>
       </footer>
-      <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>  
-             
+      <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+         <script>
+    $(document).on('change', '#filter_attendance', function (e) {
+       var del = $()
+
+        e.preventDefault();
+        console.log()
+        $.ajax({
+            type: 'POST',
+            url: '',
+            data: {
+               filter_type: "attendance",
+                filter_input: $('#filter_attendance').val(),
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+                action: 'post'
+            },
+            success: function (json) {
+               console.log("AJAX POST worked");
+               document.getElementById("total_attendance").innerHTML = json.total ;
+               document.getElementById("percentage").innerHTML = json.percentage+ '%';
+               if (json.percentage > 0){
+                  document.getElementById("percentage").classList.add('text-success');
+                  document.getElementById("percentage").classList.remove('text-danger');
+
+               }
+               if (json.percentage <= 0){
+                  document.getElementById("percentage").classList.remove('text-success');
+                  document.getElementById("percentage").classList.add('text-danger');
+
+               }
+               console.log(json.total);
+               console.log(json.percentage);
+            },
+            error: function (xhr, errmsg, err) {
+               console.log(err)
+            }
+        });
+    })
+</script>
+<script>
+    $(document).on('change', '#filter_first_timers', function (e) {
+       var del = $()
+
+        e.preventDefault();
+        console.log()
+        $.ajax({
+            type: 'POST',
+            url: '',
+            data: {
+               filter_type: "first_timers",
+                filter_input: $('#filter_first_timers').val(),
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+                action: 'post'
+            },
+            success: function (json) {
+               console.log("AJAX POST worked");
+               document.getElementById("total_first_timers").innerHTML = json.total ;
+               document.getElementById("percentage_first_timers").innerHTML = json.percentage+ '%';
+               if (json.percentage > 0){
+                  document.getElementById("percentage_first_timers").classList.add('text-success');
+                  document.getElementById("percentage_first_timers").classList.remove('text-danger');
+
+               }
+               if (json.percentage <= 0){
+                  document.getElementById("percentage_first_timers").classList.remove('text-success');
+                  document.getElementById("percentage_first_timers").classList.add('text-danger');
+
+               }
+               console.log(json.total);
+               console.log(json.percentage);
+            },
+            error: function (xhr, errmsg, err) {
+               console.log(err)
+            }
+        });
+    })
+</script>
+         <script>
+    $(document).on('change', '#filter_consistency', function (e) {
+       var del = $()
+
+        e.preventDefault();
+        console.log()
+        $.ajax({
+            type: 'POST',
+            url: '',
+            data: {
+               filter_type: "consistency",
+                filter_input: $('#filter_consistency').val(),
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+                action: 'post'
+            },
+            success: function (json) {
+               console.log("AJAX POST worked");
+               document.getElementById("total_consistency").innerHTML = json.total ;
+               document.getElementById("percentage_consistency").innerHTML = json.percentage+ '%';
+               if (json.percentage > 0){
+                  document.getElementById("percentage_consistency").classList.add('text-success');
+                  document.getElementById("percentage_consistency").classList.remove('text-danger');
+
+               }
+               if (json.percentage <= 0){
+                  document.getElementById("percentage_consistency").classList.remove('text-success');
+                  document.getElementById("percentage_consistency").classList.add('text-danger');
+
+               }
+               console.log(json.total);
+               console.log(json.percentage);
+            },
+            error: function (xhr, errmsg, err) {
+               console.log(err)
+            }
+        });
+    })
+</script>
+
 {%endblock%}

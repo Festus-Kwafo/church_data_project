@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from dashboard.views import custom_page_not_found
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -17,3 +18,4 @@ urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 admin.site.site_header = "CLC DATA ADMINISTRATION"  # default: "Django Administration"
 admin.site.index_title = "Site Adminsitration"  # default: "Site administration"
 admin.site.site_title = 'CLC site admin'  # default: "Django site admin"
+handler404 = custom_page_not_found
