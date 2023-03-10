@@ -69,7 +69,7 @@
                               <div class="d-flex align-items-center">
                                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
                                  <div class="ps-3">
-                                    <h6 id="total_attendance">{{latest_data}}</h6>
+                                    <h6 id="total_attendance">{{latest_data.total}}</h6>
                                     {%if pre_sun_percent <= 0%}
                                     <span class="text-danger small pt-1 fw-bold" id="percentage">{{pre_sun_percent}}%</span>
                                     {%else%}
@@ -98,7 +98,7 @@
                               <div class="d-flex align-items-center">
                                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
                                  <div class="ps-3">
-                                    <h6 id="total_first_timers">{{first_timers_data.first_timers__sum}}</h6>
+                                    <h6 id="total_first_timers">{{latest_data.first_timers}}</h6>
                                     {% if first_timers_pre_sun_percent <= 0 %}
                                     <span class="text-danger small pt-1 fw-bold" id="percentage_first_timers">{{first_timers_pre_sun_percent}}%</span> <span class="text-muted small pt-2 ps-1">increase</span>
                                  {% else %}
@@ -122,15 +122,15 @@
                            </div>
                            </forms>
                            <div class="card-body">
-                              <h5 class="card-title">First Timers <span>| This Year</span></h5>
+                              <h5 class="card-title">Consistency</h5>
                               <div class="d-flex align-items-center">
                                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
                                  <div class="ps-3">
-                                    <h6 id="total_consistency">{{latest_data}}</h6>
-                                    {%if pre_sun_percent <= 0%}
-                                    <span class="text-danger small pt-1 fw-bold" id="percentage_consistency">{{pre_sun_percent}}%</span>
+                                    <h6 id="total_consistency">{{latest_data.consistency}}</h6>
+                                    {%if consistency_pre_sun_percent <= 0%}
+                                    <span class="text-danger small pt-1 fw-bold" id="percentage_consistency">{{consistency_pre_sun_percent}}%</span>
                                     {%else%}
-                                    <span class="text-success small pt-1 fw-bold" id="percentage_consistency">{{pre_sun_percent}}%</span>
+                                    <span class="text-success small pt-1 fw-bold" id="percentage_consistency">{{consistency_pre_sun_percent}}%</span>
                                     {% endif %}
                                  </div>
                               </div>

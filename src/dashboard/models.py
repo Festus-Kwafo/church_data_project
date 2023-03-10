@@ -1,6 +1,7 @@
 from django.db import models
 from accounts.models import User
 
+
 # Create your models here.
 
 class Attendance(models.Model):
@@ -14,13 +15,12 @@ class Attendance(models.Model):
     first_timers = models.CharField(max_length=6)
     consistency = models.CharField(max_length=6)
     total = models.CharField(max_length=6)
-    date = models.DateField()
-    
+    date = models.DateField(unique=True)
 
     @property
     def cal_total(self):
         return int(self.adults) + int(self.children)
-    
+
     def save(self, *args, **kwarg):
         self.total = self.cal_total
         super(Attendance, self).save(*args, **kwarg)
