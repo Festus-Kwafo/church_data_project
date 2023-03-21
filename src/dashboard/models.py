@@ -14,8 +14,12 @@ class Attendance(models.Model):
     approved = models.BooleanField(default=False)
     first_timers = models.CharField(max_length=6)
     consistency = models.CharField(max_length=6)
+    offering = models.CharField(max_length=11)
+    tithe = models.CharField(max_length=11)
     total = models.CharField(max_length=6)
-    date = models.DateField(unique=True)
+    date = models.DateField()
+    date_created = models.DateField(auto_now_add=True)
+    date_updated = models.DateField(auto_now=True)
 
     @property
     def cal_total(self):

@@ -12,7 +12,7 @@ from accounts.models import User
 from datetime import date
 from django.db.models import Sum
 from dashboard.filter import data_filter, two_previous_sunday, previous_sunday
-
+from django.core.exceptions import ValidationError
 # Create your views here.
 
 class IndexView(View):
@@ -103,7 +103,12 @@ class AttendanceRecord(View):
     def post(self, request):
         forms = self.form_class(request.POST or None)
         user = request.user
+        input_date = request.POST.get("date")
         if request.POST.get("confirm") == "1" and forms.is_valid():
+            if Attendance.objects.filter(date=input_date, branch_id=request.user.id).exists():
+                message = 'Data with this date already recorded. Check the dashboard to update it'
+                messages.warning(request, message)
+                return render(request, self.template_name)
             data = forms.save(commit=False)
             data.branch = User(id=user.id)
             data.save()
