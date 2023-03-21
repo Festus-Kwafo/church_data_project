@@ -9,10 +9,10 @@ ENV PYTHONUNBUFFERED 1
 # Install django dependencies
 RUN pip install --upgrade pip
 COPY requirements.txt /clc-app/
-RUN pip install -r /clc-app/requirements.txt
+RUN pip install -r /clc_data_project/requirements.txt
 
 #work directory
-WORKDIR /clc-app/src
+WORKDIR /clc_data_project/src
 
 #install npm dependencies 
 RUN apt-get update && apt-get upgrade -y && \
@@ -23,11 +23,11 @@ COPY src/package*.json ./
 RUN npm install
 
 # Copy project
-COPY . /clc-app/
+COPY . /clc_data_project/
 
 #run webpack
-COPY src/webpack.common.js /clc-app/src/
-COPY src/webpack.prod.js /clc-app/src/
+COPY src/webpack.common.js /clc_data_project/src/
+COPY src/webpack.prod.js /clc_data_project/src/
 
 RUN npm run build
 CMD gunicorn --bind 0.0.0.0:$PORT core.wsgi
