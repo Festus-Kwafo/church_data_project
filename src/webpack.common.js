@@ -8,7 +8,7 @@ module.exports = {
         vendor: "./static/js/vendor.js",
     },
     output: {
-        filename: "js/[name].[contenthash].bundle.js",
+        filename: "js/[name].bundle.js",
         path: path.resolve(__dirname, "dist"),
     },
     plugins: [
@@ -16,14 +16,14 @@ module.exports = {
             template:
                 "./templates/pages/base.html",
             filename: "templates/pages/base.html",
-            publicPath: "/static/",
+            publicPath: "https://clcdata-static.s3.amazonaws.com/static/",
             inject: "body"
         }),
         new HtmlWebpackPlugin({
             template:
                 "./templates/dashboard/base.html",
             filename: "templates/dashboard/base.html",
-            publicPath: "/static/",
+            publicPath: "https://clcdata-static.s3.amazonaws.com/static/",
             inject: "body"
         }),
         new CleanWebpackPlugin(),
