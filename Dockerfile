@@ -26,13 +26,6 @@ RUN npm install
 # Copy project
 COPY . /church_data_project/
 
-ARG POSTGRES_DB
-ARG POSTGRES_USER
-ARG POSTGRES_PASSWORD
-RUN echo ${POSTGRES_DB}
-RUN echo ${POSTGRES_USER}
-RUN echo ${POSTGRES_PASSWORD}
-
 #run webpack
 COPY src/webpack.common.js /church_data_project/src/
 COPY src/webpack.prod.js /church_data_project/src/
@@ -40,6 +33,8 @@ COPY src/webpack.prod.js /church_data_project/src/
 RUN npm run build
 
 RUN python manage.py collectstatic --noinput
+RUN python manage.py makemigrations
+RUN python manage.py migrate
 EXPOSE 8000
 
 
