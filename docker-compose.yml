@@ -8,4 +8,4 @@ services:
       - 7000:7000
     image: app:clcdata
     container_name: cldata_container
-    command: gunicorn --bind 0.0.0.0:7000 core.wsgi
+    command: gunicorn --bind 0.0.0.0:80 core.wsgi
