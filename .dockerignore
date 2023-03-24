@@ -1,3 +1,5 @@
 src/venv
 src/node_modules
 src/dist
+.github
+.vscode

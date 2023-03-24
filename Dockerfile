@@ -8,28 +8,37 @@ ENV PYTHONUNBUFFERED 1
 
 # Install django dependencies
 RUN pip install --upgrade pip
-COPY requirements.txt /clc-app/
-RUN pip install -r /clc_data_project/requirements.txt
+COPY requirements.txt /church_data_project/
+RUN pip install -r /church_data_project/requirements.txt
 
 #work directory
-WORKDIR /clc_data_project/src
+WORKDIR /church_data_project/src
 
 #install npm dependencies 
-RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y nodejs \
-    npm  
+RUN apt-get update && apt-get upgrade -y && curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+apt-get install -y nodejs
+
+
 
 COPY src/package*.json ./
 RUN npm install
 
 # Copy project
-COPY . /clc_data_project/
+COPY . /church_data_project/
+
+ARG POSTGRES_DB
+ARG POSTGRES_USER
+ARG POSTGRES_PASSWORD
+RUN echo ${POSTGRES_DB}
+RUN echo ${POSTGRES_USER}
+RUN echo ${POSTGRES_PASSWORD}
 
 #run webpack
-COPY src/webpack.common.js /clc_data_project/src/
-COPY src/webpack.prod.js /clc_data_project/src/
+COPY src/webpack.common.js /church_data_project/src/
+COPY src/webpack.prod.js /church_data_project/src/
 
 RUN npm run build
-CMD gunicorn --bind 0.0.0.0:$PORT core.wsgi
+
+RUN python manage.py collectstatic --noinput
 
 

@@ -3,3 +3,6 @@ src/node_modules
 src/dist
 src/db.sqlite3
 .env
+.github
+.idea
+.vscode
