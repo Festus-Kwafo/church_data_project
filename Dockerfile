@@ -40,5 +40,6 @@ COPY src/webpack.prod.js /church_data_project/src/
 RUN npm run build
 
 RUN python manage.py collectstatic --noinput
+EXPOSE 80
 
 
