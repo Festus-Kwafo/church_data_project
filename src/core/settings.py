@@ -33,7 +33,6 @@ INSTALLED_APPS = [
     'accounts',
     'dashboard',
     'storages',
-
 ]
 
 MIDDLEWARE = [
@@ -69,17 +68,24 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQL_DB'),
-        'USER': os.environ.get('MYSQL_USER'),
-        'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
-        'HOST':os.environ.get('MYSQL_HOST'),
-        'PORT': os.environ.get('MYSQL_PORT'),
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQL_DB'),
+            'USER': os.environ.get('MYSQL_USER'),
+            'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
+            'HOST': os.environ.get('MYSQL_HOST'),
+            'PORT': os.environ.get('MYSQL_PORT'),
+        }
+    }
 
 
 # Password validation
@@ -115,26 +121,37 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
+USE_S3 = os.getenv('USE_S3') == 'TRUE'
 
-# aws settings
-AWS_ACCESS_KEY_ID =  os.environ.get("AWS_ACCESS_KEY")
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_ACCESS_SECRET_KEY")
-AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
-AWS_DEFAULT_ACL = 'public-read'
-AWS_S3_REGION_NAME = 'us-east-1'
-AWS_S3_SIGNATURE_VERSION = 's3v4'
-AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+if USE_S3:
+    # aws settings
+    AWS_ACCESS_KEY_ID =  os.environ.get("AWS_ACCESS_KEY")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_ACCESS_SECRET_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_S3_REGION_NAME = 'us-east-1'
+    AWS_S3_SIGNATURE_VERSION = 's3v4'
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 
-# s3 static settings
-AWS_LOCATION = 'static'
-STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    # s3 static settings
+    AWS_LOCATION = 'static'
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+    STATICFILES_STORAGE = 'core.config.StaticStorage'
+    STATICFILES_DIRS = (os.path.join(BASE_DIR, 'dist'), os.path.join(BASE_DIR, 'static'))
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'dist'), os.path.join(BASE_DIR, 'static'))
+    # s3 public media settings
+    PUBLIC_MEDIA_LOCATION = 'media'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    DEFAULT_FILE_STORAGE = 'core.config.PublicMediaStorage'
+else:
+    STATIC_URL = '/static/'
+    STATICFILES_DIRS = (os.path.join(BASE_DIR, 'dist'), os.path.join(BASE_DIR, 'static'))
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-MEDIA_URL = '/mediafiles/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 

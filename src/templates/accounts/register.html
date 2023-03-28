@@ -3,24 +3,111 @@
 {% load static %}
 
 {% block content %}
-<div class=" mt-5 container  d-xl-flex justify-content-center align-items-center vh-100">
-    <div class="glassmorphism shadow p-3 mb-5 bg-body-primary rounded">
-        <div class="text-center mb-4">
+    <section class="signin-area signin-one">
+   <div class="container">
+
+      <div class="row justify-content-center">
+
+         <div class="col-lg-5">
+             {% include '../../templates/includes/alerts.html' %}
+            <form action="" method="post">
+                {% csrf_token %}
+               <div class="signin-form form-style-two rounded-buttons">
+                           <div class="text-center mb-4">
             <img src={%static 'images/logo_2022.png' %} alt="Logo" height="52">
         </div>
-        {% include '../../templates/includes/alerts.html' %}
-        <form action="" method="post" id="register-form" autocomplete="off">
-            {% csrf_token %}
-            {%for field in forms%}
-        <div class="form-group">
-          {{field.label_tag}}
-          {{field}}
-        </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-primary d-block mx-auto">
-          Register Branch
-        </button>
-      </form>
-    </div>
-  </div>
+                  <div class="row">
+                     <div class="col-md-12">
+                        <div class="form-input">
+                           <label>Your account will be under this username</label>
+                           <div class="input-items default">
+                              <input type="text" name="username" maxlength="50" minlength="4" placeholder="OyibiAdmin" required="" id="id_username">
+                              <i class="lni lni-user"></i>
+                           </div>
+                        </div>
+                        <!-- form input -->
+                     </div>
+
+                     <div class="col-md-12">
+                        <div class="form-input">
+                           <label>Your account will be under this email</label>
+                           <div class="input-items default">
+                              <input type="email" name="email" maxlength="100"  placeholder="johndoe@gmail.com" id="id_email" required="">
+                               <i class="lni lni-envelope"></i>
+                           </div>
+                        </div>
+                        <!-- form input -->
+                     </div>
+                     <div class="col-md-12">
+                        <div class="form-input">
+                           <label>Branch Name</label>
+                           <div class="input-items default">
+              <input type="text" name="branch" maxlength="50" minlength="4" placeholder="Oyibi" id="id_branch" required="">
+                              <i class="lni lni-home"></i>
+                           </div>
+                        </div>
+                        <!-- form input -->
+                     </div>
+                     <div class="col-md-12">
+                        <div class="form-input">
+                           <label>Phone Number for your account</label>
+                           <div class="input-items default">
+                              <input type="text" name="phonenumber" maxlength="100" placeholder="0555358099" required="" id="id_phonenumber">
+                              <i class="lni lni-phone"></i>
+                           </div>
+                        </div>
+                        <!-- form input -->
+                     </div>
+                     <div class="col-md-6">
+                        <div class="form-input">
+                           <label>Password for your account</label>
+                           <div class="input-items default">
+                              <input type="password" name="password" class="form-control" placeholder="Password" required="" id="id_password">
+                              <i class="lni lni-key"></i>
+                           </div>
+                        </div>
+                        <!-- form input -->
+                     </div>
+                     <div class="col-md-6">
+                        <div class="form-input">
+                           <label>Repeat Password for your account</label>
+                           <div class="input-items default">
+                              <input type="password" name="password2" class="form-control" placeholder="Repeat Password" required="" id="id_password2">
+                              <i class="lni lni-key"></i>
+                           </div>
+                        </div>
+                        <!-- form input -->
+                     </div>
+                     <div class="col-md-12">
+                        <div class="form-input rounded-buttons">
+                           <button
+                              class="btn primary-btn rounded-full"
+                              type="submit"
+                              >
+                           Register Branch!
+                           </button>
+                        </div>
+                        <!-- form input -->
+                     </div>
+                     <div class="col-md-12">
+                        <div class="form-input text-center">
+                           <p class="text">
+                              By signing in you agree with the
+                              <a href="javascript:void(0)">Terms and Conditions</a>
+                              and
+                              <a href="javascript:void(0)">Privacy</a>
+                           </p>
+                        </div>
+                        <!-- form input -->
+                     </div>
+                  </div>
+               </div>
+               <!-- signin form -->
+            </form>
+         </div>
+      </div>
+      <!-- row -->
+   </div>
+   <!-- container -->
+</section>
 {%endblock%}

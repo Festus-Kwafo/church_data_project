@@ -1,47 +1,91 @@
 {% extends '../../dist/templates/dashboard/base.html' %}
-{% block page_title %}CLC Data{% endblock %}
+{% block page_title %}CLC Data - Login{% endblock %}
 {% load static %}
 
+
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center vh-100">
-    <div class="glassmorphism shadow p-3 mb-5 bg-body-tertiary rounded">
-        <div class="text-center mb-4">
+    <!--====== SIGNIN ONE PART START ======-->
+<section class="signin-area signin-one">
+   <div class="container">
+
+      <div class="row justify-content-center">
+
+         <div class="col-lg-5">
+             {% include '../../templates/includes/alerts.html' %}
+            <form action="" method="post">
+                {% csrf_token %}
+               <div class="signin-form form-style-two rounded-buttons">
+                           <div class="text-center mb-4">
             <img src={%static 'images/logo_2022.png' %} alt="Logo" height="52">
         </div>
-        {% include '../../templates/includes/alerts.html' %}
-        <form action="" method="post" autocomplete="off">
-            {% csrf_token %}
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input
-            type="text"
-            name="username"
-            id="username"
-            class="form-control"
-            placeholder="Enter your username"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            class="form-control"
-            placeholder="Enter your password"
-            required
-          />
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" name="remember_me" type="checkbox" id="inlineCheckbox1" value="option1">
-            <label class="form-check-label" for="inlineCheckbox1">Remember Me</label>
-          </div>
-        <button type="submit" class="btn btn-primary d-block mx-auto">
-          Login
-        </button>
-      </form>
-    </div>
-  </div>
+                  <div class="row">
+                     <div class="col-md-12">
+                        <div class="form-input">
+                           <label>Your account will be under this email</label>
+                           <div class="input-items default">
+                              <input
+                                    type="text"
+                                    name="username"
+                                    id="username"
+                                    class="form-control"
+                                    placeholder="Username"
+                                    required
+                                  />
+                              <i class="lni lni-user"></i>
+                           </div>
+                        </div>
+                        <!-- form input -->
+                     </div>
+
+                     <div class="col-md-12">
+                        <div class="form-input">
+                           <label>Password for your account</label>
+                           <div class="input-items default">
+                              <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    class="form-control"
+                                    placeholder="Password"
+                                    required
+                                  />
+                              <i class="lni lni-key"></i>
+                           </div>
+                        </div>
+                        <!-- form input -->
+                     </div>
+                     <div class="col-md-12">
+                        <div class="form-input rounded-buttons">
+                           <button
+                              class="btn primary-btn rounded-full"
+                              type="submit"
+                              >
+                           Sign In!
+                           </button>
+                        </div>
+                        <!-- form input -->
+                     </div>
+                     <div class="col-md-12">
+                        <div class="form-input text-center">
+                           <p class="text">
+                              By signing in you agree with the
+                              <a href="javascript:void(0)">Terms and Conditions</a>
+                              and
+                              <a href="javascript:void(0)">Privacy</a>
+                           </p>
+                        </div>
+                        <!-- form input -->
+                     </div>
+                  </div>
+               </div>
+               <!-- signin form -->
+            </form>
+         </div>
+      </div>
+      <!-- row -->
+   </div>
+   <!-- container -->
+</section>
+<!--====== SIGNIN ONE PART ENDS ======-->
 
 {%endblock%}
