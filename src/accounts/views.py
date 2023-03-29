@@ -34,10 +34,11 @@ class LoginView(View):
             return render(request, self.template_name, context)
 
 
-@staff_member_required
+
 class RegisterBranch(View):
     template_name = 'templates/accounts/register.html'
 
+    @staff_member_required
     def get(self, request):
         registerForm = RegistrationForm(request.POST)
         context = {'forms': registerForm}
