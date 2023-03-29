@@ -56,7 +56,7 @@ def data_filter(request, type):
             Sum(type))
         last_year_data = branch_data.filter(date__year=today.year - 1).all().aggregate(Sum(type))
 
-        # Calulate Monthly percentage increase
+        # Calulate yearly percentage increase
         year_inc_percent = ((year_data.get(type + '__sum') - last_year_data.get(type + '__sum')) / last_year_data.get(
             type + '__sum')) * 100
         response = JsonResponse(

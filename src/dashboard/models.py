@@ -17,6 +17,11 @@ class Attendance(models.Model):
     offering = models.CharField(max_length=11)
     tithe = models.CharField(max_length=11)
     total = models.CharField(max_length=6)
+    #Ratio
+    leaders_to_members = models.CharField(max_length=6, default="0:0")
+    leaders_to_offering = models.CharField(max_length=6, default="0:0")
+    members_to_offering = models.CharField(max_length=6, default="0:0")
+
     date = models.DateField()
     date_created = models.DateField(auto_now_add=True)
     date_updated = models.DateField(auto_now=True)
@@ -25,8 +30,62 @@ class Attendance(models.Model):
     def cal_total(self):
         return int(self.adults) + int(self.children)
 
+    @property
+    def leaders_to_members_ratio(self):
+        def find_gcd(numerator, denominator):
+            if numerator == 0:
+                return denominator
+            return find_gcd(denominator % numerator, numerator)
+
+        numerator = int(self.leaders)
+        denominator = int(self.total) - int(self.leaders)
+
+        gcd = find_gcd(numerator, denominator)
+
+        a = numerator // gcd
+        b = denominator // gcd
+
+        return f"{a}:{b}"
+
+    @property
+    def leaders_to_offering_ratio(self):
+        def find_gcd(numerator, denominator):
+            if numerator == 0:
+                return denominator
+            return find_gcd(denominator % numerator, numerator)
+
+        numerator = int(self.leaders)
+        denominator = int(self.offering)
+
+        gcd = find_gcd(numerator, denominator)
+
+        a = numerator // gcd
+        b = denominator // gcd
+
+        return f"{a}:{b}"
+
+    @property
+    def members_to_offering_ratio(self):
+        def find_gcd(numerator, denominator):
+            if numerator == 0:
+                return denominator
+            return find_gcd(denominator % numerator, numerator)
+
+        numerator = int(self.total) - int(self.leaders)
+        denominator = int(self.offering)
+
+        gcd = find_gcd(numerator, denominator)
+
+        a = numerator // gcd
+        b = denominator // gcd
+
+        return f"{a}:{b}"
+
     def save(self, *args, **kwarg):
         self.total = self.cal_total
+        self.leaders_to_members = self.leaders_to_members_ratio
+        self.leaders_to_offering = self.leaders_to_offering_ratio
+        self.members_to_offering = self.members_to_offering_ratio
         super(Attendance, self).save(*args, **kwarg)
 
     def __str__(self):

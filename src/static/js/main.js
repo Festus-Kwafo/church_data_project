@@ -30,16 +30,8 @@
     const onscroll = (el, listener) => {
       el.addEventListener('scroll', listener)
     }
-  
-    /**
-     * Sidebar toggle
-     */
-    if (select('.toggle-sidebar-btn')) {
-      on('click', '.toggle-sidebar-btn', function(e) {
-        select('body').classList.toggle('toggle-sidebar')
-      })
-    }
-  
+
+
     /**
      * Search bar toggle
      */
