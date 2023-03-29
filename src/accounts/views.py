@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.views import View
 from .forms import RegistrationForm
 from accounts.utils.functions import get_errors_from_form
+from django.contrib.admin.views.decorators import staff_member_required
 
 class LoginView(View):
     template_name = 'templates/accounts/login.html'
@@ -32,6 +33,8 @@ class LoginView(View):
             messages.warning(request, "Invalid credentials")
             return render(request, self.template_name, context)
 
+
+@staff_member_required
 class RegisterBranch(View):
     template_name = 'templates/accounts/register.html'
 
