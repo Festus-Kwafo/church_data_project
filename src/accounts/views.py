@@ -5,6 +5,8 @@ from django.utils import timezone
 from django.views import View
 from .forms import RegistrationForm
 from accounts.utils.functions import get_errors_from_form
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 
 class LoginView(View):
@@ -38,7 +40,8 @@ class LoginView(View):
 class RegisterBranch(View):
     template_name = 'templates/accounts/register.html'
 
-    @staff_member_required
+    #@method_decorator(login_required(login_url="admin:login"))
+    @method_decorator(staff_member_required)
     def get(self, request):
         registerForm = RegistrationForm(request.POST)
         context = {'forms': registerForm}
