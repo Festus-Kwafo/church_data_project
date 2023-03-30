@@ -128,7 +128,13 @@ class AttendanceRecord(View):
 
 def edit_attendance(request, id):
     instance = get_object_or_404(Attendance, id=id)
-    form = AtttendanceForms(instance=instance)
+    if request.method == 'POST':
+        form = AtttendanceForms(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard:index')
+    else:
+        form = AtttendanceForms(instance=instance)
     return render(request, 'templates/dashboard/attendance_forms_edit.html', {'form': form})
 
 def custom_page_not_found(request, exception):
