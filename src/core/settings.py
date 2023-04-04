@@ -164,6 +164,33 @@ MESSAGE_TAGS = {
     50: 'critical',
 }
 
-
 #Auth User
 AUTH_USER_MODEL = 'accounts.User'
+
+import json_log_formatter
+#Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'json': {
+            '()': 'json_log_formatter.JSONFormatter',
+            'format': '%(asctime)s %(levelname)s %(name)s %(message)s'
+        },
+    },
+    'handlers': {
+        'json': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'clcdatalogs.json',
+            'formatter': 'json',
+        },
+    },
+    'loggers': {
+        'core': {
+            'handlers': ['json'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

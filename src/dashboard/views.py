@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.utils.html import strip_tags
 from django.views import View
@@ -16,6 +16,8 @@ from django.db.models.functions import ExtractYear, ExtractMonth
 from dashboard.chart import get_year_dict, colorPrimary, colorSuccess, colorDanger, months
 from django.core.exceptions import ValidationError
 # Create your views here.
+import logging
+logger = logging.getLogger("core")
 
 class IndexView(View):
     template_name = 'templates/dashboard/index.html'
@@ -25,10 +27,16 @@ class IndexView(View):
     def get(self, request):
         user = request.user
         branch_data = Attendance.objects.filter(branch_id=user.id)
-
+        if not branch_data.filter(date=previous_sunday()).exists():
+            logger.debug("No data for previous sunday", extra={'user': request.user.branch})
+            messages.warning(request, 'Please update attendance for previous sunday')
+            return redirect('dashboard:attendance')
+        if not branch_data.filter(date=two_previous_sunday()).exists():
+            logger.debug("No data for two previous sunday", extra={'user': request.user.branch})
+            messages.warning(request, 'Please update attendance for two previous sunday')
+            return redirect('dashboard:attendance')
         try:
             last_branch_data = Attendance.objects.filter(branch_id=user.id).order_by('-date')[:5]
-
             #Attendance
             month_data = branch_data.filter(date__year=self.today.year, date__month=self.today.month).all().aggregate(
                 Sum('total'))
@@ -70,36 +78,33 @@ class IndexView(View):
             # Calculate previous sunday increase
             consistency_pre_sun_percent = ((int(latest_data.consistency) - int(pre_sun_data.consistency)) / int(
                 pre_sun_data.consistency)) * 100
-        except:
-            last_month_consistency_data = 0
-            latest_data = 0
-            month_data = 0
-            month_inc_percent = 0
-            pre_sun_percent = 0
-            first_timers_pre_sun_percent = 0
-            first_timers_data  = 0
-            first_timers_month_inc_percent = 0
-            consistency_data = 0
-            consistency_month_inc_percent = 0
-            consistency_pre_sun_percent = 0
+        except Exception as e:
+            logger.debug(e)
+            messages.warning(request, 'Please update attendance for previous sunday')
+            return redirect('dashboard:attendance')
 
-        context = {"user": user, "latest_data": latest_data, 'last_branch_data':last_branch_data, 'month_data': month_data,
+        context = {"user": user, "latest_data": latest_data, 'last_branch_data': last_branch_data, 'month_data': month_data,
                    "month_inc_percent": round(month_inc_percent, 2), "pre_sun_percent": round(pre_sun_percent, 2), 'first_timers_data':first_timers_data, 'first_timers_month_inc_percent': round(first_timers_month_inc_percent, 2) , 'first_timers_pre_sun_percent':round(first_timers_pre_sun_percent, 2), 'consistency_data':consistency_data , 'consistency_month_inc_percent': round(consistency_month_inc_percent, 2), 'consistency_pre_sun_percent': round(consistency_pre_sun_percent, 2) }
         return render(request, self.template_name, context)
 
     def post(self, request):
         user = request.user
         branch_data = Attendance.objects.filter(branch_id=user.id)
-        if request.POST.get('filter_type') == 'attendance':
-            return data_filter(request, 'total')
-        elif request.POST.get('filter_type')== 'first_timers':
-            return data_filter(request, 'first_timers')
-        elif request.POST.get('filter_type') == 'consistency':
-            return data_filter(request, 'consistency')
+        try:
+            if request.POST.get('filter_type') == 'attendance':
+                return data_filter(request, 'total')
+            elif request.POST.get('filter_type') == 'first_timers':
+                return data_filter(request, 'first_timers')
+            elif request.POST.get('filter_type') == 'consistency':
+                return data_filter(request, 'consistency')
+        except Exception as e:
+            print(e)
+            message = 'Error occurred while filtering data'
+            messages.warning(request, message)
+            return redirect("dashboard:attendance")
 class AttendanceRecord(View):
     template_name = 'templates/dashboard/attendance_forms.html'
     form_class = AtttendanceForms
-
     @method_decorator(login_required(login_url="accounts:login"))
     def get(self, request):
         context = {"forms": self.form_class}
