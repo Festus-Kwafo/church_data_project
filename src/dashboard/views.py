@@ -140,6 +140,7 @@ def edit_attendance(request, id):
 def custom_page_not_found(request, exception):
     return render(request, 'templates/dashboard/pages-error-404.html', status=404)
 
+
 def get_filter_options(request):
     grouped_purchases = Attendance.objects.annotate(year=ExtractYear('date')).values('year').order_by('-year').distinct()
     options = [purchase['year'] for purchase in grouped_purchases]
@@ -187,6 +188,7 @@ def get_first_timers_chart(request, year):
             }]
         },
     })
+
 
 def get_consistency_chart(request, year):
     branch_id = request.user.id
