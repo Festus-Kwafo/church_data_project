@@ -8,3 +8,4 @@ psycopg2-binary==2.9.5
 python-dotenv==1.0.0
 tzdata==2022.7
 django-widget-tweaks==1.4.12
+json-log-formatter==0.5.2
