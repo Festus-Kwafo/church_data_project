@@ -34,4 +34,4 @@ class User(AbstractBaseUser, PermissionsMixin):
         return notifications[:100]
 
     def __str__(self):
-        return self.username
+        return self.branch

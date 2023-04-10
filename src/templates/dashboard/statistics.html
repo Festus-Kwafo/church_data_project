@@ -1,0 +1,114 @@
+{% extends '../../dist/templates/dashboard/base.html' %}
+{% block page_title %}CLC Data - Admin Statistics{% endblock %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% block content %}
+<form id="filterForm">
+  <label for="year">Choose a year:</label>
+  <select name="year" id="year"></select>
+  <input type="submit" value="Load" name="_load">
+
+</form>
+<div class="container mt-5">
+                               <div class="row">
+                                 <div class="col-md-6">
+                                    <canvas id="YearlyAttendaceChart" width="300" height="250"></canvas>
+                                    <script>
+                                    let YearlyAttendaceChartctx = document.getElementById('YearlyAttendaceChart').getContext('2d');
+                                    var YearlyAttendaceChart = new Chart(YearlyAttendaceChartctx, {
+                                        type: 'line',
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: 'Custom Chart Title',
+                                                    font: {
+                                                            size: 18
+                                                            }
+                                                }
+                                            }
+                                    });
+                                    </script>
+                                    </div>
+                                 <div class="col-md-6">
+                                    <canvas id="YearlyLeadersChart" width="300" height="250"></canvas>
+                                 <script>
+                                 var YearlyLeadersChartctx = document.getElementById('YearlyLeadersChart').getContext('2d');
+                                 var YearlyLeadersChart = new Chart(YearlyLeadersChartctx, {
+                                     type: 'line',
+                                    options: {
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: 'Custom Chart Title',
+                                                    font: {
+                                                            size: 18
+                                                            }
+                                                }
+                                            }
+                                        }
+                                 });
+                                 </script>
+
+                                 </div>
+                              </div>
+  </div>
+<script>
+$(document).ready(function() {
+    $.ajax({
+      url: "/chart/filter-options/",
+      type: "GET",
+      dataType: "json",
+      success: (jsonResponse) => {
+        // Load all the options
+        jsonResponse.options.forEach(option => {
+          $("#year").append(new Option(option, option));
+        });
+        // Load data for the first option
+        loadAllCharts($("#year").children().first().val());
+      },
+      error: () => console.log("Failed to fetch chart filter options!")
+    });
+  });
+
+$("#filterForm").on("click", (event) => {
+  event.preventDefault();
+
+  const year = $("#year").val();
+  loadAllCharts(year)
+    console.log(year)
+});
+
+function loadChart(chart, endpoint) {
+  $.ajax({
+    url: endpoint,
+    type: "GET",
+    dataType: "json",
+    success: (jsonResponse) => {
+        console.log(jsonResponse)
+      // Extract data from the response
+      const title = jsonResponse.title;
+      const labels = jsonResponse.labels;
+      const datasets = jsonResponse.datasets;
+
+      // Reset the current chart
+      chart.data.datasets = [];
+      chart.data.labels = [];
+      // Load new data into the chart
+      chart.options.plugins.title.text = title;
+      chart.options.plugins.title.display = true;
+      chart.data.labels = labels;
+      datasets.forEach(dataset => {
+        chart.data.datasets.push(dataset);
+      });
+      chart.update();
+    },
+    error: () => console.log("Failed to fetch chart data from " + endpoint + "!")
+  });
+}
+
+function loadAllCharts(year) {
+  loadChart(YearlyAttendaceChart, `yearly-attendance/${year}`);
+  loadChart(YearlyLeadersChart, `yearly-leaders/${year}`);
+}
+          </script>
+{% endblock %}

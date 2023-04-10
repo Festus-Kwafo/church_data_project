@@ -13,4 +13,8 @@ urlpatterns = [
     path('chart/data/first_timers/<int:year>', views.get_first_timers_chart, name='firsttimers_chart-data'),
     path('chart/data/members/<int:year>', views.get_members_chart, name='members_chart-data'),
     path('chart/data/consistency/<int:year>', views.get_consistency_chart, name='consistency_chart-data'),
+    # Statistics views
+    path('statistics/yearly-attendance/<int:year>', views.get_yearly_attendance, name='yearly_attendance'),
+    path('statistics/yearly-leaders/<int:year>', views.get_yearly_leaders, name='yearly_leaders'),
+    path('statistics/', views.statistics_view, name='statistics'),
     ]

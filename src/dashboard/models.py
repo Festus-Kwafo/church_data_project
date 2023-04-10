@@ -1,9 +1,6 @@
 from django.db import models
 from accounts.models import User
-
-
 # Create your models here.
-
 class Attendance(models.Model):
     branch = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users')
     adults = models.CharField(max_length=6)
@@ -55,7 +52,7 @@ class Attendance(models.Model):
             return find_gcd(denominator % numerator, numerator)
 
         numerator = int(self.leaders)
-        denominator = int(self.offering)
+        denominator = round(float(self.offering))
 
         gcd = find_gcd(numerator, denominator)
 
@@ -72,7 +69,7 @@ class Attendance(models.Model):
             return find_gcd(denominator % numerator, numerator)
 
         numerator = int(self.total) - int(self.leaders)
-        denominator = int(self.offering)
+        denominator = round(float(self.offering))
 
         gcd = find_gcd(numerator, denominator)
 
@@ -89,4 +86,4 @@ class Attendance(models.Model):
         super(Attendance, self).save(*args, **kwarg)
 
     def __str__(self):
-        return self.branch
+        return self.branch.branch

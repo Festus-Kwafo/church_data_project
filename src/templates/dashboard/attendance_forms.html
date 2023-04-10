@@ -20,23 +20,34 @@
             {% csrf_token %}
 
             <input type="hidden" name="confirm" id="confirm" value="0">
-            <div class="form-floating mb-3">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
                 <input type="number" class="form-control" id="adults" name="adults" placeholder="Number of Adults in church" required>
                 <label for="adults">Adults</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="number" class="form-control" id="children" name="children" placeholder="Number of children in church" required>
-                <label for="children" class="form-label">Children</label>
-            </div>
-                <div class="form-floating mb-3">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" id="children" name="children" placeholder="Number of children in church" required>
+                            <label for="children" class="form-label">Children</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
                     <input type="number" class="form-control" id="males" name="males" placeholder="Number of Males in church" required>
                     <label for="males" class="form-label">Males</label>
                 </div>
-                <div class="form-floating mb-3">
+                    </div>
+                    <div class="col-md-6">
+                    <div class="form-floating mb-3">
                     <input type="number" class="form-control" id="females" name="females" placeholder="Number of females in church" required>
                     <label for="females">Females</label>
                 </div>
-
+                    </div>
+                </div>
                 <div class="form-floating mb-3">
                     <input type="number" class="form-control" id="leaders" name="leaders" placeholder="Number of leaders in church" required>
                     <label for="leaders">Leaders</label>
@@ -61,7 +72,7 @@
                     <input type="date" class="form-control" id="date" name="date" placeholder="Date" required value="{{m.dob|date:'Y-m-d'}}">
                     <label for="date" class="form-label">Date</label>
                 </div>
-                <p class="btn btn-secondary text-white btn-lg btn-block float-end" data-bs-toggle="modal" data-bs-target="#verticalycentered" onclick="submitForm()">Submit</p> <button type="reset" class="btn btn-lg btn-secondary me-2 text-white float-end">Reset</button>
+                <p class="btn btn-secondary text-white btn-block float-end" data-bs-toggle="modal" data-bs-target="#verticalycentered" onclick="submitForm()">Submit</p> <button type="reset" id="reset-button" class="btn btn-danger me-2 text-white float-end">Reset</button>
                 {% include '../../templates/includes/modal.html' %}
             </form>
         </div>
@@ -99,6 +110,17 @@
 
             today = yyyy + '-' + mm + '-' + dd;
             document.getElementById("date").setAttribute("max", today);
+
+            // get the form element and the reset button
+            const form = document.querySelector('form');
+            const resetButton = document.querySelector('#reset-button');
+
+            // add an event listener to the reset button
+            resetButton.addEventListener('click', function() {
+              // reset all the input fields in the form
+              form.reset();
+            });
+
         </script>
 
     </div>

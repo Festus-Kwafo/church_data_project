@@ -50,11 +50,11 @@
                     <label for="consistency" class="form-label">Consistency from Previous Week</label>
                 </div>
                 <div class="form-floating mb-3">
-                    {%  render_field form.offering type="number" class="form-control" id="offering"%}
+                    {%  render_field form.offering type="currency" class="form-control" id="offering"%}
                     <label for="offering" class="form-label">Offering</label>
                 </div>
                 <div class="form-floating mb-3">
-                    {%  render_field form.tithe type="number" class="form-control" id="adults"%}
+                    {%  render_field form.tithe type="currency" class="form-control" id="adults"%}
                     <label for="tithe" class="form-label">Tithe</label>
                 </div>
                 <div class="form-floating mb-3">
@@ -99,6 +99,42 @@
 
             today = yyyy + '-' + mm + '-' + dd;
             document.getElementById("date").setAttribute("max", today);
+            var currencyInput = document.querySelectorAll( 'input[type="currency"]' );
+
+    for ( var i = 0; i < currencyInput.length; i++ ) {
+
+        var currency = 'GHS'
+        onBlur( {
+            target: currencyInput[ i ]
+        } )
+
+        currencyInput[ i ].addEventListener( 'focus', onFocus )
+        currencyInput[ i ].addEventListener( 'blur', onBlur )
+
+        function localStringToNumber( s ) {
+            return Number( String( s ).replace( /[^0-9.-]+/g, "" ) )
+        }
+
+        function onFocus( e ) {
+            var value = e.target.value;
+            e.target.value = value ? localStringToNumber( value ) : ''
+        }
+
+        function onBlur( e ) {
+            var value = e.target.value
+
+            var options = {
+                maximumFractionDigits: 2,
+                currency: currency,
+                style: "currency",
+                currencyDisplay: "symbol"
+            }
+
+            e.target.value = ( value || value == 0 ) ?
+                localStringToNumber( value ).toLocaleString( undefined, options ) :
+                ''
+        }
+    }
         </script>
 
     </div>
