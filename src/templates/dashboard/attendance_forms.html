@@ -6,7 +6,7 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6 mb-4">
-            <div class="text-center mb-4">
+            <div class="text-center mb-4 mt-3">
                 <img src={%static 'images/logo_2022.png' %} alt="Logo" height="52">
                 <h3 class="text-center mb-4">Attendance Record Form</h3>
             </div>
@@ -61,18 +61,18 @@
                     <label for="consistency" class="form-label">Consistency from Previous Week</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="number" class="form-control" id="offering" name="offering" placeholder="Offerings" required>
+                    <input type="currency" class="form-control" id="offering" name="offering" placeholder="Offerings" required>
                     <label for="offering" class="form-label">Offering</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="number" class="form-control" id="tithe" name="tithe" placeholder="tithes" required>
+                    <input type="currency" class="form-control" id="tithe" name="tithe" placeholder="tithes" required>
                     <label for="tithe" class="form-label">Tithe</label>
                 </div>
                 <div class="form-floating mb-3">
                     <input type="date" class="form-control" id="date" name="date" placeholder="Date" required value="{{m.dob|date:'Y-m-d'}}">
                     <label for="date" class="form-label">Date</label>
                 </div>
-                <p class="btn btn-secondary text-white btn-block float-end" data-bs-toggle="modal" data-bs-target="#verticalycentered" onclick="submitForm()">Submit</p> <button type="reset" id="reset-button" class="btn btn-danger me-2 text-white float-end">Reset</button>
+                <p class="btn btn-primary rounded-full text-white float-end" data-bs-toggle="modal" data-bs-target="#verticalycentered" onclick="submitForm()">Submit</p> <button type="reset" id="reset-button" class="btn btn-danger rounded-full me-2 text-white float-end">Reset</button>
                 {% include '../../templates/includes/modal.html' %}
             </form>
         </div>
@@ -120,7 +120,42 @@
               // reset all the input fields in the form
               form.reset();
             });
+var currencyInput = document.querySelectorAll( 'input[type="currency"]' );
 
+    for ( var i = 0; i < currencyInput.length; i++ ) {
+
+        var currency = 'GHS'
+        onBlur( {
+            target: currencyInput[ i ]
+        } )
+
+        currencyInput[ i ].addEventListener( 'focus', onFocus )
+        currencyInput[ i ].addEventListener( 'blur', onBlur )
+
+        function localStringToNumber( s ) {
+            return Number( String( s ).replace( /[^0-9.-]+/g, "" ) )
+        }
+
+        function onFocus( e ) {
+            var value = e.target.value;
+            e.target.value = value ? localStringToNumber( value ) : ''
+        }
+
+        function onBlur( e ) {
+            var value = e.target.value
+
+            var options = {
+                maximumFractionDigits: 2,
+                currency: currency,
+                style: "currency",
+                currencyDisplay: "symbol"
+            }
+
+            e.target.value = ( value || value == 0 ) ?
+                localStringToNumber( value ).toLocaleString( undefined, options ) :
+                ''
+        }
+    }
         </script>
 
     </div>
