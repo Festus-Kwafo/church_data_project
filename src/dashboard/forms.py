@@ -1,6 +1,7 @@
 from django import forms
-from .models import Attendance
 from django.core.exceptions import ValidationError
+
+from .models import Attendance
 
 
 class AtttendanceForms(forms.ModelForm):

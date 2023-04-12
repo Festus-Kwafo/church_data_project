@@ -1,13 +1,16 @@
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.utils import timezone
-from django.views import View
-from .forms import RegistrationForm
-from accounts.utils.functions import get_errors_from_form
 from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
+from django.views import View
+
+from accounts.utils.functions import get_errors_from_form
+
+from .forms import RegistrationForm
+
 
 class LoginView(View):
     template_name = 'templates/accounts/login.html'

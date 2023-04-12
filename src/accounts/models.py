@@ -5,7 +5,6 @@ from django.db import models
 from accounts.managers import AccountManager
 
 
-
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=100, unique=True)
     phonenumber = models.CharField(max_length=10, null=True, blank=True)

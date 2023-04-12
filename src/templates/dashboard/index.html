@@ -490,12 +490,13 @@ $(document).ready(function() {
     });
   });
 
-$("#filterForm").on("click", (event) => {
-  event.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+    const selectElement = document.getElementById('year');
 
-  const year = $("#year").val();
-  loadAllCharts(year)
-    console.log(year)
+    selectElement.addEventListener('change', function(event) {
+        const selectedValue = event.target.value;
+        loadAllCharts(selectedValue)
+    });
 });
 
 function loadChart(chart, endpoint) {

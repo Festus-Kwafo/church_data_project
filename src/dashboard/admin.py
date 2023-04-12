@@ -1,10 +1,12 @@
+import datetime
+
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
+
 from dashboard.models import Attendance
 
 # Register your models here.
 
-from django.contrib.admin import SimpleListFilter
-import datetime
 
 class MonthFilter(SimpleListFilter):
     title = 'Month'

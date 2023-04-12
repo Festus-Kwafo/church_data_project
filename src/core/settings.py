@@ -1,5 +1,6 @@
-from pathlib import Path
 import os
+from pathlib import Path
+
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
 
@@ -168,6 +169,7 @@ MESSAGE_TAGS = {
 AUTH_USER_MODEL = 'accounts.User'
 
 import json_log_formatter
+
 #Logging
 LOGGING = {
     'version': 1,

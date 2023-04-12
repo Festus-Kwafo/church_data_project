@@ -1,22 +1,22 @@
-from django.shortcuts import render, redirect, get_object_or_404
+import logging
+from datetime import date
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from django.db.models.functions import ExtractMonth, ExtractYear
 from django.http import JsonResponse
-from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
 from django.views import View
-from django.utils.decorators import method_decorator
+
+from accounts.models import User
+from dashboard.chart import colorPrimary, get_year_dict, months
+from dashboard.filter import data_filter, previous_sunday, two_previous_sunday
+
 from .forms import AtttendanceForms
 from .models import Attendance
-from accounts.models import User
-from datetime import date
-from django.db.models import Sum
-from dashboard.filter import data_filter, two_previous_sunday, previous_sunday
-from django.db.models.functions import ExtractYear, ExtractMonth
-from dashboard.chart import get_year_dict, colorPrimary, colorSuccess, colorDanger, months
-import datetime
-import random
-import logging
 
 logger = logging.getLogger("core")
 
@@ -303,97 +303,6 @@ def get_members_chart(request, year):
     })
 
 
-#Random Colors Generator
-def random_color():
-    r = random.randint(0, 255)
-    g = random.randint(0, 255)
-    b = random.randint(0, 255)
-    return f'rgba({r}, {g}, {b}, 0.2)', f'rgb({r}, {g}, {b})'
+# Random Colors Generator
 
 
-
-def months_dis(year):
-    current_year = datetime.datetime.now().year
-    current_month = datetime.datetime.now().month
-    months = []
-    if year < current_year:
-        months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-        return months
-    elif year == current_year:
-        for month in range(1, current_month + 1):
-            month_name = datetime.date(year, month, 1).strftime('%B')
-            months.append(month_name)
-    else:
-        months = []
-    return months
-
-def get_yearly_attendance(request, year):
-    # Get all unique branches
-    branches = Attendance.objects.values_list('branch__branch', flat=True).distinct()
-
-    # Initialize the dataset
-    datasets = []
-
-    # Loop through the branches and get the total attendance for each branch
-    for branch in branches:
-        data = []
-        for month in range(1, len(months_dis(year)) + 1):
-            attendance_count = \
-            Attendance.objects.filter(branch__branch=branch, date__year=year, date__month=month).aggregate(
-                Sum('total'))['total__sum'] or 0
-            data.append(attendance_count)
-
-        # You can set custom colors for each branch or use a color generator
-        backgroundColor, borderColor = random_color()
-
-        # Create the dataset for the current branch
-        dataset = {
-            'label': branch,
-            'data': data,
-            'borderColor': borderColor,
-            'backgroundColor': backgroundColor,
-        }
-
-        # Append the dataset to the datasets list
-        datasets.append(dataset)
-
-    # Return the labels and datasets as a JSON response
-    return JsonResponse({'title':f'Total Attendance in {year}', 'labels': months_dis(year), 'datasets': datasets})
-
-def get_yearly_leaders(request, year):
-    # Get all unique branches
-    branches = Attendance.objects.values_list('branch__branch', flat=True).distinct()
-
-    # Initialize the dataset
-    datasets = []
-
-    # Loop through the branches and get the total attendance for each branch
-    for branch in branches:
-        data = []
-        for month in range(1, len(months_dis(year)) + 1):
-            attendance_count = \
-            Attendance.objects.filter(branch__branch=branch, date__year=year, date__month=month).aggregate(
-                Sum('leaders'))['leaders__sum'] or 0
-            data.append(attendance_count)
-
-        # You can set custom colors for each branch or use a color generator
-        backgroundColor, borderColor = random_color()
-
-        # Create the dataset for the current branch
-        dataset = {
-            'label': branch,
-            'data': data,
-            'borderColor': borderColor,
-            'backgroundColor': backgroundColor,
-        }
-
-        # Append the dataset to the datasets list
-        datasets.append(dataset)
-
-    # Return the labels and datasets as a JSON response
-    return JsonResponse({'title': f'Leaders Attendance in {year}', 'labels': months_dis(year), 'datasets': datasets})
-
-
-@staff_member_required
-def statistics_view(request):
-    return render(request, 'templates/dashboard/statistics.html')

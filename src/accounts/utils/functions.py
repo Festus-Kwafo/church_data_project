@@ -1,5 +1,6 @@
 from django.utils.html import strip_tags
 
+
 def get_errors_from_form(forms):
     error =[]
     for field, er in forms.errors.items():

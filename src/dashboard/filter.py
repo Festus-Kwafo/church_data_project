@@ -1,9 +1,10 @@
-from django.http import JsonResponse
-from .models import Attendance
-from datetime import date
-from django.db.models import Sum
-
 import datetime
+from datetime import date
+
+from django.db.models import Sum
+from django.http import JsonResponse
+
+from .models import Attendance
 
 
 def previous_sunday():

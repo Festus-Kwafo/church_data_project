@@ -3,16 +3,81 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% block content %}
-<form id="filterForm">
-  <label for="year">Choose a year:</label>
-  <select name="year" id="year"></select>
-  <input type="submit" value="Load" name="_load">
 
-</form>
-<div class="container mt-5">
-                               <div class="row">
-                                 <div class="col-md-6">
-                                    <canvas id="YearlyAttendaceChart" width="300" height="250"></canvas>
+    <main id="main" class="main">
+        <section class="section dashboard">
+            <div class="row">
+               <div class="col-lg-12">
+                  <div class="row">
+                     <div class="col-xxl-3 col-md-6 ">
+                        <div class="card rounded-4 info-card  sales-card">
+                           <div class="card-body">
+                              <h5 class="card-title">Branches</h5>
+                              <div class="d-flex align-items-center">
+                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                     <i class="bi bi-buildings"></i>
+                                 </div>
+                                 <div class="ps-3">
+                                    <h6 id="total_attendance">{{ total_branches }}</h6>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-xxl-3 col-md-6">
+                        <div class="card rounded-4 info-card revenue-card">
+                           <div class="card-body">
+                              <h5 class="card-title">Average Attendance <span>| {{ previous_month }}</span></h5>
+                              <div class="d-flex align-items-center">
+                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
+                                 <div class="ps-3">
+                                    <h6 id="total_first_timers">{{ avg_attendance }}</h6>
+                                    </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-xxl-3 col-md-6">
+                        <div class="card rounded-4 info-card customers-card">
+                           <div class="card-body">
+                              <h5 class="card-title">First timers <span>| {{ previous_month }}</span></h5>
+                              <div class="d-flex align-items-center">
+                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
+                                 <div class="ps-3">
+                                    <h6 id="total_consistency">{{ avg_firsttimers }}</h6>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                      <div class="col-xxl-3 col-md-6">
+                        <div class="card rounded-4 info-card customers-card">
+                           <div class="card-body">
+                              <h5 class="card-title">Average Leaders <span>| {{ previous_month }}</span></h5>
+                              <div class="d-flex align-items-center">
+                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
+                                 <div class="ps-3">
+                                    <h6 id="total_consistency">{{ avg_leaders }}</h6>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="row m-2">
+                        <div class="card">
+                           <div class="card-body">
+                              <h5 class="card-title">Attendance Reports</h5>
+                               <div class="filter me-3">
+                                    <form id="filterForm">
+                                      <select class="form-select" name="year" id="year"></select>
+                                    </form>
+                               </div>
+                              <div class="row">
+                                 <div class="col-lg-6">
+                                    <canvas id="YearlyAttendaceChart" width="240" height="180"></canvas>
                                     <script>
                                     let YearlyAttendaceChartctx = document.getElementById('YearlyAttendaceChart').getContext('2d');
                                     var YearlyAttendaceChart = new Chart(YearlyAttendaceChartctx, {
@@ -20,17 +85,17 @@
                                             plugins: {
                                                 title: {
                                                     display: true,
-                                                    text: 'Custom Chart Title',
+                                                    text: '',
                                                     font: {
                                                             size: 18
-                                                            }
+                                                    }
                                                 }
                                             }
                                     });
                                     </script>
                                     </div>
-                                 <div class="col-md-6">
-                                    <canvas id="YearlyLeadersChart" width="300" height="250"></canvas>
+                                 <div class="col-lg-6">
+                                     <canvas id="YearlyLeadersChart" width="240" height="180"></canvas>
                                  <script>
                                  var YearlyLeadersChartctx = document.getElementById('YearlyLeadersChart').getContext('2d');
                                  var YearlyLeadersChart = new Chart(YearlyLeadersChartctx, {
@@ -48,10 +113,115 @@
                                         }
                                  });
                                  </script>
-
+                                 </div>
+                                 <div class="col-lg-6">
+                                     <canvas id="YearlyMembersChart" width="240" height="180"></canvas>
+                                 <script>
+                                 var YearlyMembersChartctx = document.getElementById('YearlyMembersChart').getContext('2d');
+                                 var YearlyMembersChart = new Chart(YearlyMembersChartctx, {
+                                     type: 'line',
+                                    options: {
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: '',
+                                                    font: {
+                                                            size: 18
+                                                            }
+                                                }
+                                            }
+                                        }
+                                 });
+                                 </script>
+                                 </div>
+                                 <div class="col-lg-6">
+                                  <canvas id="YearlyFirstTimersChart" width="240" height="180"></canvas>
+                                 <script>
+                                 var YearlyFirstTimersChartctx = document.getElementById('YearlyFirstTimersChart').getContext('2d');
+                                 var YearlyFirstTimersChart = new Chart(YearlyFirstTimersChartctx, {
+                                     type: 'line',
+                                    options: {
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: 'Custom Chart Title',
+                                                    font: {
+                                                            size: 18
+                                                            }
+                                                }
+                                            }
+                                        }
+                                 });
+                                 </script>
                                  </div>
                               </div>
-  </div>
+                           </div>
+                        </div>
+                     </div>
+            </div>
+                        <div class="row m-2">
+                        <div class="card">
+                           <div class="card-body">
+                              <h5 class="card-title">Finance Reports</h5>
+                               <div class="filter me-3">
+                                    <form id="filterForm">
+                                      <select class="form-select" name="year" id="year"></select>
+                                    </form>
+                               </div>
+                              <div class="row">
+                                 <div class="col-lg-6">
+                                    <canvas id="YearlyAttendaceChart" width="300" height="250"></canvas>
+                                    <script>
+                                    let YearlyAttendaceChartctx = document.getElementById('YearlyAttendaceChart').getContext('2d');
+                                    var YearlyAttendaceChart = new Chart(YearlyAttendaceChartctx, {
+                                        type: 'line',
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: '',
+                                                    font: {
+                                                        size: 18
+                                                        }
+                                                }
+                                            }
+                                    });
+                                    </script>
+                                    </div>
+                                 <div class="col-lg-6">
+                                     <canvas id="YearlyLeadersChart" width="300" height="250"></canvas>
+                                 <script>
+                                 var YearlyLeadersChartctx = document.getElementById('YearlyLeadersChart').getContext('2d');
+                                 var YearlyLeadersChart = new Chart(YearlyLeadersChartctx, {
+                                     type: 'line',
+                                    options: {
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: 'Custom Chart Title',
+                                                    font: {
+                                                            size: 18
+                                                            }
+                                                }
+                                            }
+                                        }
+                                 });
+                                 </script>
+                                 </div>
+                              </div>
+                              <div class="row">
+                                 <div class="col-lg-6">
+asdsa
+                                    </div>
+                                 <div class="col-lg-6">
+                                  sad
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+            </div>
+             </section>
+    </main>
 <script>
 $(document).ready(function() {
     $.ajax({
@@ -70,12 +240,13 @@ $(document).ready(function() {
     });
   });
 
-$("#filterForm").on("click", (event) => {
-  event.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+    const selectElement = document.getElementById('year');
 
-  const year = $("#year").val();
-  loadAllCharts(year)
-    console.log(year)
+    selectElement.addEventListener('change', function(event) {
+        const selectedValue = event.target.value;
+        loadAllCharts(selectedValue)
+    });
 });
 
 function loadChart(chart, endpoint) {
@@ -109,6 +280,8 @@ function loadChart(chart, endpoint) {
 function loadAllCharts(year) {
   loadChart(YearlyAttendaceChart, `yearly-attendance/${year}`);
   loadChart(YearlyLeadersChart, `yearly-leaders/${year}`);
+  loadChart(YearlyMembersChart, `yearly-members/${year}`);
+  loadChart(YearlyFirstTimersChart, `yearly-firsttimers/${year}`);
 }
           </script>
 {% endblock %}

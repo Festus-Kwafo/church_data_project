@@ -1,5 +1,8 @@
 from django import forms
+
 from .models import User
+
+
 class RegistrationForm(forms.ModelForm):
     username = forms.CharField(label='Username', min_length=4, max_length=50)
     branch = forms.CharField(label='Branch name', min_length=4, max_length=50)
