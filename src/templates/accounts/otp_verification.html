@@ -1,0 +1,91 @@
+{% extends '../../dist/templates/dashboard/base.html' %}
+{% block page_title %}CLC Data - OTP Verification{% endblock %}
+{% load static %}
+
+{% block content %}
+    <section class="signin-area signin-one">
+   <div class="container">
+
+      <div class="row justify-content-center">
+
+         <div class="col-lg-5">
+             {% include '../../templates/includes/alerts.html' %}
+            <form action="" method="post">
+                {% csrf_token %}
+               <div class="signin-form form-style-two rounded-buttons">
+                           <div class="text-center mb-4">
+            <img src={%static 'images/logo_2022.png' %} alt="Logo" height="52">
+        </div>
+                  <div class="row">
+                     <div class="col-md-12">
+                        <div class="form-input">
+                           <label class="my-2" for="phoneNumber">Enter six-digit code sent to your number</label>
+                           <div class="input-items default">
+                               <div class="input otp-input">
+                                   <div class="d-flex align-items-center justify-content-between text-center">
+                                     <input type="text" id="1" class="form-control" name="otp_number" maxlength="6" required>
+                                   </div>
+             </div>
+                               <button class=" btn btn-primary rounded-full float-end my-3">Submit</button>
+                           </div>
+                        </div>
+                        <!-- form input -->
+                     </div>
+                        <!-- form input -->
+
+                     <div class="col-md-12">
+                        <div class="form-input text-center">
+                           <p class="mb-0">
+                               Didn't get the code? <a href="" style="text-decoration: none;">Resend</a>
+                           </p>
+                            <!--forget password-->
+
+                        </div>
+                        <!-- form input -->
+                     </div>
+                  </div>
+               </div>
+               <!-- signin form -->
+            </form>
+         </div>
+      </div>
+      <!-- row -->
+   </div>
+   <!-- container -->
+</section>
+<script>
+//Move cursor to the next in the OTP input
+if (document.getElementsByClassName("otp-input")[0]){
+  var container = document.getElementsByClassName("otp-input")[0];
+container.onkeyup = function(e) {
+    var target = e.srcElement || e.target;
+    var maxLength = parseInt(target.attributes["maxlength"].value, 10);
+    var myLength = target.value.length;
+    if (myLength >= maxLength) {
+        var next = target;
+        while (next = next.nextElementSibling) {
+            if (next == null)
+                break;
+            if (next.tagName.toLowerCase() === "input") {
+                next.focus();
+                break;
+            }
+        }
+    }
+    // Move to previous field if empty (user pressed backspace)
+    else if (myLength === 0) {
+        var previous = target;
+        while (previous = previous.previousElementSibling) {
+            if (previous == null)
+                break;
+            if (previous.tagName.toLowerCase() === "input") {
+                previous.focus();
+                break;
+            }
+        }
+    }
+}
+}
+
+</script>
+{%endblock%}

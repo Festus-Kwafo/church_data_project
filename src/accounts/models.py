@@ -10,6 +10,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     phonenumber = models.CharField(max_length=10, null=True, blank=True)
     branch = models.CharField(max_length=100, default="accra")
     email = models.EmailField()
+    otp_number = models.IntegerField(default=000000)
+    otp_verified = models.BooleanField(default=False)
     last_login = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -34,3 +36,4 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.branch
+

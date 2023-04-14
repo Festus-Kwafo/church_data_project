@@ -1,15 +1,18 @@
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
+from .models import User
+from accounts.utils.functions import get_errors_from_form, send_otp_sms, get_otp
+from core.validators import CustomPasswordValidator
+from django.core.exceptions import ValidationError
+from django.http import JsonResponse
 
-from accounts.utils.functions import get_errors_from_form
-
-from .forms import RegistrationForm
+from .forms import RegistrationForm, SendOTPForms, NewPasswordForm
 
 
 class LoginView(View):
@@ -23,8 +26,6 @@ class LoginView(View):
         password = request.POST.get("password")
         remember_me = "on" in request.POST.get("remember_me", "")
         user = authenticate(username=username, password=password)
-        print(user)
-        print(username +" "+ password)
         if user:
             login(request, user)
             if remember_me:
@@ -39,17 +40,16 @@ class LoginView(View):
             return render(request, self.template_name, context)
 
 
-
 class RegisterBranch(View):
     template_name = 'templates/accounts/register.html'
 
-    #@method_decorator(login_required(login_url="admin:login"))
+    # @method_decorator(login_required(login_url="admin:login"))
     @method_decorator(staff_member_required)
     def get(self, request):
         registerForm = RegistrationForm(request.POST)
         context = {'forms': registerForm}
         return render(self.request, self.template_name, context)
-    
+
     def post(self, request):
         registerForm = RegistrationForm(request.POST)
         if registerForm.is_valid():
@@ -63,8 +63,86 @@ class RegisterBranch(View):
             messages.warning(request, error_message)
             return redirect('accounts:register')
         return redirect('accounts:login')
-        
+
+
 class LogoutView(View):
     def get(self, request, *args, **kwargs):
         logout(request)
         return redirect('accounts:login')
+
+
+class SendOTP(View):
+    template_name = 'templates/accounts/reset_password.html'
+    otp_number = get_otp()
+
+    def get(self, request):
+        form = SendOTPForms()
+        return render(request, self.template_name, {'forms': form})
+
+    def post(self, request):
+        form = SendOTPForms(request.POST)
+        if form.is_valid():
+            phone_number = form.cleaned_data.get('phonenumber')
+            user = User.objects.filter(phonenumber=phone_number)
+            if user:
+                otp_user = User.objects.get(phonenumber=phone_number)
+                otp_user.otp_number = self.otp_number
+                otp_user.otp_verified = False
+                otp_user.save()
+                send_otp_sms(self.otp_number, phone_number)
+                request.session['session_number'] = f'{phone_number}'
+                return redirect("accounts:otp_verification")
+            else:
+                messages.warning(request, "Account does not Exist with is PhoneNumber")
+                return redirect("accounts:reset_password")
+        else:
+            messages.warning(request, get_errors_from_form(form))
+        return redirect("accounts:reset_password")
+
+
+class OTPVerification(View):
+    template_name = 'templates/accounts/otp_verification.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        otp_number = request.POST.get('otp_number')
+        phone_number = request.session.get('session_number')
+        if User.objects.filter(phonenumber=phone_number, otp_number=otp_number).exists():
+            user = User.objects.get(phonenumber=phone_number, otp_number=otp_number)
+            user.otp_verified = True
+            user.save()
+            login(request, user)
+            return redirect("accounts:new_password")
+        else:
+            messages.warning(request, "OTP does not match")
+        return render(request, self.template_name)
+
+
+class NewPassword(View):
+    def get(self, request):
+        form = NewPasswordForm()
+        return render(request, 'templates/accounts/new_password.html', {'forms': form})
+
+    def post(self, request):
+        form = NewPasswordForm(request.POST)
+        # Validate the password
+        validator = CustomPasswordValidator()
+        if form.is_valid():
+            password1 = form.cleaned_data.get('new_password1')
+            password2 = form.cleaned_data.get('new_password2')
+            try:
+                validator.validate(password1)
+            except ValidationError as e:
+                return JsonResponse({'status': 'error', 'message': str(e.message)})
+            if password1 == password2:
+                user = request.user
+                user.set_password(password1)
+                user.save()
+                update_session_auth_hash(request, user)
+                logout(request)
+                return JsonResponse({'status': 'success', 'message': 'Password Changed Successfully'})
+        else:
+            messages.warning(request, get_errors_from_form(form))
+        return redirect("accounts:new_password")

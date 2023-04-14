@@ -49,3 +49,13 @@ class RegistrationForm(forms.ModelForm):
             {'class': 'form-control', 'placeholder': 'Password'})
         self.fields['password2'].widget.attrs.update(
             {'class': 'form-control', 'placeholder': 'Repeat Password'})
+
+
+class SendOTPForms(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('phonenumber',)
+
+class NewPasswordForm(forms.Form):
+    new_password1 = forms.CharField(label='New Password', widget=forms.PasswordInput)
+    new_password2 = forms.CharField(label='Confirm New Password', widget=forms.PasswordInput)
