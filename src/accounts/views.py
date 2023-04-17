@@ -120,6 +120,15 @@ class OTPVerification(View):
         return render(request, self.template_name)
 
 
+def resend_otp(request):
+    phone_number = request.session.get('session_number')
+    user = User.objects.get(phonenumber=phone_number)
+    user.otp_number = get_otp()
+    user.save()
+    send_otp_sms(user.otp_number, phone_number)
+    return redirect("accounts:otp_verification")
+
+
 class NewPassword(View):
     def get(self, request):
         form = NewPasswordForm()

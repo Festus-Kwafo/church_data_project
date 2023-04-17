@@ -36,7 +36,7 @@
                      <div class="col-md-12">
                         <div class="form-input text-center">
                            <p class="mb-0">
-                               Didn't get the code? <a href="" style="text-decoration: none;">Resend</a>
+                               Haven't received the code? <span id="time"> </span> <a id="resend"></a>
                            </p>
                             <!--forget password-->
 
@@ -86,6 +86,33 @@ container.onkeyup = function(e) {
     }
 }
 }
+function startTimer(duration, display, resend_tag) {
+            var timer = duration,
+                minutes, seconds;
+            var interval = setInterval(function() {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
 
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.innerHTML = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(interval);
+                    display.innerHTML = '';
+                    resend_tag.innerHTML = '<a href="{% url 'accounts:resend_otp' %}">Resend</a>';
+
+                }
+            }, 1000);
+        }
+
+        window.onload = function() {
+            var fiveMinutes = 60 * 3,
+            display = document.querySelector('#time'),
+            resend_tag = document.querySelector('#resend');
+            startTimer(fiveMinutes, display, resend_tag);
+
+        };
 </script>
 {%endblock%}
