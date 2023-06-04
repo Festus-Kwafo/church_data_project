@@ -70,8 +70,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 if DEBUG:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('TEST_MYSQL_DB'),
+            'USER': os.environ.get('TEST_MYSQL_USER'),
+            'PASSWORD': os.environ.get('TEST_MYSQL_PASSWORD'),
+            'HOST': os.environ.get('TEST_MYSQL_HOST'),
+            'PORT': os.environ.get('TEST_MYSQL_PORT'),
         }
     }
 else:

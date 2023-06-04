@@ -55,7 +55,7 @@ class Attendance(models.Model):
             return find_gcd(denominator % numerator, numerator)
 
         numerator = int(self.leaders)
-        denominator = round(float(self.offering))
+        denominator = round(float(''.join(filter(str.isdigit, self.offering))))
 
         gcd = find_gcd(numerator, denominator)
 
@@ -72,7 +72,7 @@ class Attendance(models.Model):
             return find_gcd(denominator % numerator, numerator)
 
         numerator = int(self.total) - int(self.leaders)
-        denominator = round(float(self.offering))
+        denominator = round(float(''.join(filter(str.isdigit, self.offering))))
 
         gcd = find_gcd(numerator, denominator)
 
