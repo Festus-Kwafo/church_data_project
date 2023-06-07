@@ -36,11 +36,11 @@ class IndexView(View):
         if not branch_data.filter(date=previous_sunday()).exists():
             logger.debug("No data for previous sunday", extra={'user': request.user.branch})
             messages.warning(request, 'Please update attendance for previous sunday')
-            return redirect('dashboard:attendance')
+            return redirect('dashboard:sunday_attendance')
         if not branch_data.filter(date=two_previous_sunday()).exists():
             logger.debug("No data for two previous sunday", extra={'user': request.user.branch})
             messages.warning(request, 'Please update attendance for two previous sunday')
-            return redirect('dashboard:attendance')
+            return redirect('dashboard:sunday_attendance')
         try:
             last_branch_data = SundayAttendance.objects.select_related('attendance').filter(attendance__branch_id=user.id).order_by('-date')[:5]
             # Attendance
@@ -96,7 +96,7 @@ class IndexView(View):
         except Exception as e:
             logger.debug(e)
             messages.warning(request, 'Error occurred while processing data')
-            return redirect('dashboard:attendance')
+            return redirect('dashboard:sunday_attendance')
 
         context = {"user": user, "latest_data": latest_data, 'last_branch_data': last_branch_data,
                    'month_data': month_data,
