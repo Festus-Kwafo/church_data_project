@@ -12,9 +12,10 @@
                   <li class="breadcrumb-item"><a href="index.html">Home</a></li>
                   <li class="breadcrumb-item active">Dashboard</li>
                </ol>
-            </nav></div>
+            </nav>
+                 </div>
 
-                 <div class="col"> <a class="btn btn-primary float-end rounded-full text-white" href="{% url 'dashboard:attendance' %}">Add Record</a> </div>
+                 <div class="col"> <a class="btn btn-primary float-end rounded-full text-white" href="{% url 'dashboard:sunday_attendance' %}">Add Sunday Record</a> </div>
              </div>
 
          </div>
@@ -299,7 +300,7 @@ var myChart = new Chart(ctx, {
                                  <tbody>
                                  {% for data in last_branch_data %}
                                     <tr>
-                                       <th scope="row"><a href="{% url 'dashboard:edit_attendance' data.id %}" >{{ data.date }}</a></th>
+                                       <th scope="row"><a href="{% url 'dashboard:edit_sunday_attendance' data.id %}" >{{ data.date }}</a></th>
                                        <td>{{ data.attendance.males }}</td>
                                        <td>{{ data.attendance.females }}</td>
                                        <td>{{ data.attendance.children }}</td>

@@ -26,3 +26,4 @@
 {"message": "Cannot resolve keyword 'date' into field. Choices are: adults, branch, branch_id, children, females, first_timers, id, leaders, males, special_event_attendance, sunday_attendance, total, wednesday_attendance", "time": "2023-06-07T00:55:41.895768"}
 {"message": "Cannot resolve keyword 'date' into field. Choices are: adults, branch, branch_id, children, females, first_timers, id, leaders, males, special_event_attendance, sunday_attendance, total, wednesday_attendance", "time": "2023-06-07T00:56:00.980869"}
 {"message": "Cannot resolve keyword 'date' into field. Choices are: adults, branch, branch_id, children, females, first_timers, id, leaders, males, special_event_attendance, sunday_attendance, total, wednesday_attendance", "time": "2023-06-07T00:56:23.042378"}
+{"message": "(2013, 'Lost connection to server during query')", "time": "2023-06-07T11:49:19.465343"}
