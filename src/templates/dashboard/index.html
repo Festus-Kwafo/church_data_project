@@ -24,23 +24,13 @@
                   <div class="row">
                      <div class="col-xxl-4 col-md-6">
                         <div class="card info-card sales-card">
-                           <forms action="post">
-                           <div class="filter">
-                                 <select name="filter_attendance" id="filter_attendance" class="form-select border-0 input-sm" aria-label="Default select example">
-                                    <option selected disabled>Filter</option>
-                                    <option value="today">Today</option>
-                                    <option value="this_month">This Month</option>
-                                    <option value="this_year">This Year</option>
-                                 </select>
-                           </div>
-                           </forms>
 
                            <div class="card-body">
                               <h5 class="card-title">Attendance</h5>
                               <div class="d-flex align-items-center">
                                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
                                  <div class="ps-3">
-                                    <h6 id="total_attendance">{{latest_data.total}}</h6>
+                                    <h6 id="total_attendance">{{latest_data.attendance.total}}</h6>
                                     {%if pre_sun_percent <= 0%}
                                     <span class="text-danger small pt-1 fw-bold" id="percentage">{{pre_sun_percent}}%</span>
                                     {%else%}
@@ -53,23 +43,12 @@
                      </div>
                      <div class="col-xxl-4 col-md-6">
                         <div class="card info-card revenue-card">
-                           <forms action="post">
-                           <div class="filter">
-                                 <select name="filter_attendance" id="filter_first_timers" class="form-select border-0 input-sm" aria-label="Default select example">
-                                    <option selected disabled>Filter</option>
-                                    <option value="today">Today</option>
-                                    <option value="this_month">This Month</option>
-                                    <option value="this_year">This Year</option>
-                                 </select>
-                           </div>
-                           </forms>
-
                            <div class="card-body">
                               <h5 class="card-title">First Timers </h5>
                               <div class="d-flex align-items-center">
                                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"> <i class="bi bi-people"></i></div>
                                  <div class="ps-3">
-                                    <h6 id="total_first_timers">{{latest_data.first_timers}}</h6>
+                                    <h6 id="total_first_timers">{{latest_data.attendance.first_timers}}</h6>
                                     {% if first_timers_pre_sun_percent <= 0 %}
                                     <span class="text-danger small pt-1 fw-bold" id="percentage_first_timers">{{first_timers_pre_sun_percent}}%</span>
                                  {% else %}
@@ -82,16 +61,6 @@
                      </div>
                      <div class="col-xxl-4 col-xl-12">
                         <div class="card info-card customers-card">
-                           <forms action="post">
-                           <div class="filter">
-                                 <select name="filter_attendance" id="filter_consistency" class="form-select border-0 input-sm" aria-label="Default select example">
-                                    <option selected disabled>Filter</option>
-                                    <option value="today">Today</option>
-                                    <option value="this_month">This Month</option>
-                                    <option value="this_year">This Year</option>
-                                 </select>
-                           </div>
-                           </forms>
                            <div class="card-body">
                               <h5 class="card-title">Consistency</h5>
                               <div class="d-flex align-items-center">
@@ -331,10 +300,10 @@ var myChart = new Chart(ctx, {
                                  {% for data in last_branch_data %}
                                     <tr>
                                        <th scope="row"><a href="{% url 'dashboard:edit_attendance' data.id %}" >{{ data.date }}</a></th>
-                                       <td>{{ data.males }}</td>
-                                       <td>{{ data.females }}</td>
-                                       <td>{{ data.children }}</td>
-                                       <td>{{ data.first_timers }}</td>
+                                       <td>{{ data.attendance.males }}</td>
+                                       <td>{{ data.attendance.females }}</td>
+                                       <td>{{ data.attendance.children }}</td>
+                                       <td>{{ data.attendance.first_timers }}</td>
                                        <td>{{ data.consistency }}</td>
                                         <td>{{ data.leaders_to_members }}</td>
                                         <td>{{ data.leaders_to_offering }}</td>

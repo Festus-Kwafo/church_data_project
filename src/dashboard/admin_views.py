@@ -10,7 +10,7 @@ from django.shortcuts import render
 
 from accounts.models import User
 
-from .models import Attendance
+from .models import Attendance, SundayAttendance
 
 
 def random_color():
@@ -48,9 +48,7 @@ def get_yearly_attendance(request, year):
     for branch in branches:
         data = []
         for month in range(1, len(months_dis(year)) + 1):
-            attendance_count = \
-                Attendance.objects.filter(branch__branch=branch, date__year=year, date__month=month).aggregate(
-                    Sum('total'))['total__sum'] or 0
+            attendance_count = SundayAttendance.objects.select_related('attendance').filter(attendance__branch__branch=branch, date__year=year, date__month=month).aggregate(Sum('attendance__total'))['attendance__total__sum'] or 0
             data.append(attendance_count)
 
         # You can set custom colors for each branch or use a color generator
@@ -83,8 +81,8 @@ def get_yearly_leaders(request, year):
         data = []
         for month in range(1, len(months_dis(year)) + 1):
             attendance_count = \
-                Attendance.objects.filter(branch__branch=branch, date__year=year, date__month=month).aggregate(
-                    Sum('leaders'))['leaders__sum'] or 0
+                SundayAttendance.objects.select_related('attendance').filter(attendance__branch__branch=branch, date__year=year, date__month=month).aggregate(
+                    Sum('attendance__leaders'))['attendance__leaders__sum'] or 0
             data.append(attendance_count)
 
         # You can set custom colors for each branch or use a color generator
@@ -116,12 +114,12 @@ def get_yearly_members(request, year):
     for branch in branches:
         data = []
         for month in range(1, len(months_dis(year)) + 1):
-            total_attendance_count = \
-                Attendance.objects.filter(branch__branch=branch, date__year=year, date__month=month).aggregate(
-                    Sum('total'))['total__sum'] or 0
+
+            total_attendance_count = SundayAttendance.objects.select_related('attendance').filter(attendance__branch__branch=branch, date__year=year, date__month=month).aggregate(
+                    Sum('attendance__total'))['attendance__total__sum'] or 0
             leaders_attendance_count = \
-                Attendance.objects.filter(branch__branch=branch, date__year=year, date__month=month).aggregate(
-                    Sum('leaders'))['leaders__sum'] or 0
+                SundayAttendance.objects.select_related('attendance').filter(attendance__branch__branch=branch, date__year=year, date__month=month).aggregate(
+                    Sum('attendance__leaders'))['attendance__leaders__sum'] or 0
             memeber_count = total_attendance_count - leaders_attendance_count
             data.append(memeber_count)
 
@@ -155,8 +153,8 @@ def get_yearly_firsttimers(request, year):
         data = []
         for month in range(1, len(months_dis(year)) + 1):
             attendance_count = \
-                Attendance.objects.filter(branch__branch=branch, date__year=year, date__month=month).aggregate(
-                    Sum('first_timers'))['first_timers__sum'] or 0
+                SundayAttendance.objects.select_related('attendance').filter(attendance__branch__branch=branch, date__year=year, date__month=month).aggregate(
+                    Sum('attendance__first_timers'))['attendance__first_timers__sum'] or 0
             data.append(attendance_count)
 
         # You can set custom colors for each branch or use a color generator
@@ -190,10 +188,10 @@ def statistics_view(request):
     current_date = datetime.datetime.now()
     previous_month_date = current_date - relativedelta(months=1)
     previous_month = previous_month_date.month
-    total_attendance = Attendance.objects.filter(date__month=previous_month).aggregate(Sum('total'))['total__sum']
-    total_firsttimers = Attendance.objects.filter(date__month=previous_month).aggregate(Sum('first_timers'))[
-        'first_timers__sum']
-    total_leaders = Attendance.objects.filter(date__month=previous_month).aggregate(Sum('leaders'))['leaders__sum']
+    total_attendance = SundayAttendance.objects.select_related('attendance').filter(date__month=previous_month).aggregate(Sum('attendance__total'))['attendance__total__sum']
+    total_firsttimers = SundayAttendance.objects.select_related('attendance').filter(date__month=previous_month).aggregate(Sum('attendance__first_timers'))[
+        'attendance__first_timers__sum']
+    total_leaders = SundayAttendance.objects.select_related('attendance').filter(date__month=previous_month).aggregate(Sum('attendance__leaders'))['attendance__leaders__sum']
     total_sundays = count_sundays(previous_month_date.year, previous_month)
     avg_attendance = total_attendance / total_sundays
     avg_firsttimers = total_firsttimers / total_sundays

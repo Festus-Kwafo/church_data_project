@@ -4,7 +4,7 @@ from datetime import date
 from django.db.models import Sum
 from django.http import JsonResponse
 
-from .models import Attendance
+from .models import Attendance, SundayAttendance
 
 
 def previous_sunday():
@@ -27,14 +27,14 @@ def data_filter(request, type):
     branch_data = Attendance.objects.filter(branch_id=user.id)
     if request.POST.get('filter_input') == 'today':
         if type == 'total':
-            latest_data = Attendance.objects.filter(branch_id=user.id, date=previous_sunday()).first().total
-            pre_sun_data = Attendance.objects.filter(branch_id=user.id, date=two_previous_sunday()).first().total
+            latest_data = SundayAttendance.objects.select_related('attendance').filter(attendance__branch_id=user.id, date=previous_sunday()).first().attendance.total
+            pre_sun_data = SundayAttendance.objects.select_related('attendance').filter(attendance__branch_id=user.id, date=two_previous_sunday()).first().attendance.total
         elif type == 'first_timers':
-            latest_data = Attendance.objects.filter(branch_id=user.id, date=previous_sunday()).first().first_timers
-            pre_sun_data = Attendance.objects.filter(branch_id=user.id, date=two_previous_sunday()).first().first_timers
+            latest_data = SundayAttendance.objects.select_related('attendance').filter(attendance__branch_id=user.id, date=previous_sunday()).first().attendance.first_timers
+            pre_sun_data = SundayAttendance.objects.select_related('attendance').filter(attendance__branch_id=user.id, date=two_previous_sunday()).first().attendance.first_timers
         elif type == 'consistency':
-            latest_data = Attendance.objects.filter(branch_id=user.id, date=previous_sunday()).first().consistency
-            pre_sun_data = Attendance.objects.filter(branch_id=user.id, date=two_previous_sunday()).first().consistency
+            latest_data = SundayAttendance.objects.select_related('attendance').filter(attendance__branch_id=user.id, date=previous_sunday()).first().consistency
+            pre_sun_data = SundayAttendance.objects.select_related('attendance').filter(attendance__branch_id=user.id, date=two_previous_sunday()).first().consistency
 
         # Calculate previous sunday increase
         pre_sun_percent = ((int(latest_data) - int(pre_sun_data)) / int(pre_sun_data)) * 100

@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import date
 
@@ -10,13 +11,16 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
 from django.views import View
+from django.db.models import FloatField
+from django.db.models.functions import Cast
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from accounts.models import User
 from dashboard.chart import colorPrimary, get_year_dict, months
 from dashboard.filter import data_filter, previous_sunday, two_previous_sunday
 
-from .forms import AtttendanceForms
-from .models import Attendance
+from .forms import AttendanceForms, SundayAttendanceForms, WednesdayAttendanceForms
+from .models import Attendance, SundayAttendance, SpecialEventAttendance, WednesdayAttendance
 
 logger = logging.getLogger("core")
 
@@ -28,7 +32,7 @@ class IndexView(View):
     @method_decorator(login_required(login_url="accounts:login"))
     def get(self, request):
         user = request.user
-        branch_data = Attendance.objects.filter(branch_id=user.id)
+        branch_data = SundayAttendance.objects.select_related('attendance').filter(attendance__branch_id=user.id)
         if not branch_data.filter(date=previous_sunday()).exists():
             logger.debug("No data for previous sunday", extra={'user': request.user.branch})
             messages.warning(request, 'Please update attendance for previous sunday')
@@ -38,39 +42,40 @@ class IndexView(View):
             messages.warning(request, 'Please update attendance for two previous sunday')
             return redirect('dashboard:attendance')
         try:
-            last_branch_data = Attendance.objects.filter(branch_id=user.id).order_by('-date')[:5]
+            last_branch_data = SundayAttendance.objects.select_related('attendance').filter(attendance__branch_id=user.id).order_by('-date')[:5]
             # Attendance
             month_data = branch_data.filter(date__year=self.today.year, date__month=self.today.month).all().aggregate(
-                Sum('total'))
+                Sum('attendance__total'))
             last_month_data = branch_data.filter(date__year=self.today.year,
-                                                 date__month=self.today.month - 1).all().aggregate(Sum('total'))
-            latest_data = Attendance.objects.filter(branch_id=user.id, date=previous_sunday()).first()
-            pre_sun_data = Attendance.objects.filter(branch_id=user.id, date=two_previous_sunday()).first()
+                                                 date__month=self.today.month - 1).all().aggregate(Sum('attendance__total'))
+
+            latest_data = SundayAttendance.objects.select_related('attendance').filter(attendance__branch_id=user.id, date=previous_sunday()).first()
+            pre_sun_data = SundayAttendance.objects.select_related('attendance').filter(attendance__branch_id=user.id, date=two_previous_sunday()).first()
 
             # Calulate Monthly percentage increase
-            month_inc_percent = ((month_data.get('total__sum') - last_month_data.get(
-                'total__sum')) / last_month_data.get(
-                'total__sum')) * 100
+            month_inc_percent = ((month_data.get('attendance__total__sum') - last_month_data.get(
+                'attendance__total__sum')) / last_month_data.get(
+                'attendance__total__sum')) * 100
 
             # Calculate previous sunday increase
-            pre_sun_percent = ((int(latest_data.total) - int(pre_sun_data.total)) / int(pre_sun_data.total)) * 100
+            pre_sun_percent = ((int(latest_data.attendance.total) - int(pre_sun_data.attendance.total)) / int(pre_sun_data.attendance.total)) * 100
 
             # First_timers
             first_timers_data = branch_data.filter(date__year=self.today.year,
                                                    date__month=self.today.month).all().aggregate(
-                Sum('first_timers'))
+                Sum('attendance__first_timers'))
             last_month_first_timers_data = branch_data.filter(date__year=self.today.year,
                                                               date__month=self.today.month - 1).all().aggregate(
-                Sum('first_timers'))
+                Sum('attendance__first_timers'))
             # Calulate Monthly percentage increase
             first_timers_month_inc_percent = ((first_timers_data.get(
-                'first_timers__sum') - last_month_first_timers_data.get(
-                'first_timers__sum')) / last_month_first_timers_data.get(
-                'first_timers__sum')) * 100
+                'attendance__first_timers__sum') - last_month_first_timers_data.get(
+                'attendance__first_timers__sum')) / last_month_first_timers_data.get(
+                'attendance__first_timers__sum')) * 100
 
             # Calculate previous sunday increase
-            first_timers_pre_sun_percent = ((int(latest_data.first_timers) - int(pre_sun_data.first_timers)) / int(
-                pre_sun_data.first_timers)) * 100
+            first_timers_pre_sun_percent = ((int(latest_data.attendance.first_timers) - int(pre_sun_data.attendance.first_timers)) / int(
+                pre_sun_data.attendance.first_timers)) * 100
 
             # consistency
             consistency_data = branch_data.filter(date__year=self.today.year,
@@ -90,7 +95,7 @@ class IndexView(View):
                 pre_sun_data.consistency)) * 100
         except Exception as e:
             logger.debug(e)
-            messages.warning(request, 'Please update attendance for previous sunday')
+            messages.warning(request, 'Error occurred while processing data')
             return redirect('dashboard:attendance')
 
         context = {"user": user, "latest_data": latest_data, 'last_branch_data': last_branch_data,
@@ -105,8 +110,6 @@ class IndexView(View):
         return render(request, self.template_name, context)
 
     def post(self, request):
-        user = request.user
-        branch_data = Attendance.objects.filter(branch_id=user.id)
         try:
             if request.POST.get('filter_type') == 'attendance':
                 return data_filter(request, 'total')
@@ -121,25 +124,29 @@ class IndexView(View):
             return redirect("dashboard:attendance")
 
 
-class AttendanceRecord(View):
-    template_name = 'templates/dashboard/attendance_forms.html'
-    form_class = AtttendanceForms
+class SundayAttendanceRecord(View):
+    template_name = 'templates/dashboard/forms/attendance_forms.html'
+    form_class_1 = SundayAttendanceForms
+    form_class_2= AttendanceForms
 
     @method_decorator(login_required(login_url="accounts:login"))
     def get(self, request):
-        context = {"forms": self.form_class}
+        context = {"sunday_attendance_forms": self.form_class_1, "attendance_forms": self.form_class_2}
         return render(request, self.template_name, context)
 
     def post(self, request):
-        forms = self.form_class(request.POST or None)
+        sunday_attendance_forms = self.form_class_1(request.POST or None)
+        attendance_forms = self.form_class_2(request.POST or None)
         user = request.user
         input_date = request.POST.get("date")
         female = request.POST.get("females")
         male = request.POST.get("males")
         adults = request.POST.get("adults")
         children = request.POST.get("children")
-        if request.POST.get("confirm") == "1" and forms.is_valid():
-            if Attendance.objects.filter(date=input_date, branch_id=request.user.id).exists():
+        if sunday_attendance_forms.is_valid() and attendance_forms.is_valid():
+            attendance_data = attendance_forms.save(commit=False)
+            attendance_data.branch = user
+            if SundayAttendance.objects.filter(date=input_date, attendance=attendance_data).exists():
                 message = 'Data with this date already recorded. Check the dashboard to update it'
                 messages.warning(request, message)
                 return render(request, self.template_name)
@@ -151,12 +158,17 @@ class AttendanceRecord(View):
                 message = "Sum of adults and and children cannot be greater than the total number of people"
                 messages.warning(request, message)
                 return render(request, self.template_name)
-            data = forms.save(commit=False)
-            data.branch = User(id=user.id)
-            data.save()
+            sunday_attendance_data = sunday_attendance_forms.save(commit=False)
+            sunday_attendance_data.attendance = attendance_data
+            attendance_data.save()
+            sunday_attendance_data.save()
+
             return redirect("dashboard:index")
         else:
-            for field, error in forms.errors.items():
+            for field, error in sunday_attendance_forms.errors.items():
+                message = f"{strip_tags(error)}"
+                break
+            for field, error in attendance_forms.errors.items():
                 message = f"{strip_tags(error)}"
                 break
             context = {k: v for k, v in request.POST.items()}
@@ -164,34 +176,127 @@ class AttendanceRecord(View):
         return render(request, self.template_name, context)
 
 
+
+class WednesdayAttendanceRecord(PermissionRequiredMixin, View):
+    template_name = 'templates/dashboard/forms/wednesday_attendance_forms.html'
+    form_class_1 = WednesdayAttendanceForms
+    form_class_2 = AttendanceForms
+    permission_required = 'dashboard.add_midweek_record'
+
+
+    def get(self, request):
+        context = {"wednesday_attendance_forms": self.form_class_1, "attendance_forms": self.form_class_2}
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        wednesday_attendance_forms = self.form_class_1(request.POST or None)
+        attendance_forms = self.form_class_2(request.POST or None)
+        user = request.user
+        input_date = request.POST.get("date")
+        female = request.POST.get("females")
+        male = request.POST.get("males")
+        adults = request.POST.get("adults")
+        children = request.POST.get("children")
+        if wednesday_attendance_forms.is_valid() and attendance_forms.is_valid():
+            attendance_data = attendance_forms.save(commit=False)
+            attendance_data.branch = user
+            if WednesdayAttendance.objects.filter(date=input_date, attendance=attendance_data).exists():
+                message = 'Data with this date already recorded. Check the dashboard to update it'
+                messages.warning(request, message)
+                return render(request, self.template_name)
+            if int(female) + int(male) > int(adults) + int(children):
+                message = 'Total number of people cannot be greater than the sum of adults and children'
+                messages.warning(request, message)
+                return render(request, self.template_name)
+            if int(adults) + int(children) > int(female) + int(male):
+                message = "Sum of adults and and children cannot be greater than the total number of people"
+                messages.warning(request, message)
+                return render(request, self.template_name)
+            wednesday_attendance_data = wednesday_attendance_forms.save(commit=False)
+            wednesday_attendance_data.attendance = attendance_data
+            attendance_data.save()
+            wednesday_attendance_data.save()
+            return redirect("dashboard:index")
+        else:
+            for field, error in wednesday_attendance_forms.errors.items():
+                message = f"{strip_tags(error)}"
+                break
+            for field, error in attendance_forms.errors.items():
+                message = f"{strip_tags(error)}"
+                break
+            context = {k: v for k, v in request.POST.items()}
+            messages.warning(request, message)
+        return render(request, self.template_name, context)
+
 def edit_attendance(request, id):
-    instance = get_object_or_404(Attendance, id=id)
-    input_date = request.POST.get("date")
+    sunday_attendance_instance = get_object_or_404(SundayAttendance, id=id)
+    attendance_instance = get_object_or_404(Attendance, id=sunday_attendance_instance.attendance.id)
     female = request.POST.get("females")
     male = request.POST.get("males")
     adults = request.POST.get("adults")
     children = request.POST.get("children")
-    print(children)
     if request.method == 'POST':
-        form = AtttendanceForms(request.POST, instance=instance)
-        if form.is_valid():
+        sunday_attendance_forms = SundayAttendanceForms(request.POST, instance=sunday_attendance_instance)
+        attendance_forms = AttendanceForms(request.POST, instance=attendance_instance)
+        if sunday_attendance_forms.is_valid() and attendance_forms.is_valid():
             if int(female) + int(male) > int(adults) + int(children):
                 message = 'Total number of people cannot be greater than the sum of adults and children'
                 messages.warning(request, message)
-                form = AtttendanceForms(instance=instance)
-                return render(request, 'templates/dashboard/attendance_forms_edit.html', {'form': form})
+                sunday_attendance_forms = SundayAttendanceForms( instance=sunday_attendance_instance)
+                attendance_forms = AttendanceForms(instance=sunday_attendance_instance)
+                return render(request, 'templates/dashboard/forms/attendance_forms_edit.html', {'sunday_attendance_forms': sunday_attendance_forms, 'attendance_forms': attendance_forms})
             if int(adults) + int(children) > int(female) + int(male):
                 message = "Sum of adults and and children cannot be greater than the total number of people"
                 messages.warning(request, message)
-                form = AtttendanceForms(instance=instance)
-                return render(request, 'templates/dashboard/attendance_forms_edit.html', {'form': form})
-            offering = form.cleaned_data['offering']
-            print(offering.replace('GH₵', ''))
-            form.save()
+                sunday_attendance_forms = SundayAttendanceForms(instance=sunday_attendance_instance)
+                attendance_forms = AttendanceForms(instance=sunday_attendance_instance)
+                return render(request, 'templates/dashboard/forms/attendance_forms_edit.html',
+                              {'sunday_attendance_forms': sunday_attendance_forms,
+                               'attendance_forms': attendance_forms})
+            sunday_attendance_data = sunday_attendance_forms.save(commit=False)
+            sunday_attendance_data.save()
             return redirect('dashboard:index')
     else:
-        form = AtttendanceForms(instance=instance)
-    return render(request, 'templates/dashboard/attendance_forms_edit.html', {'form': form})
+        sunday_attendance_forms = SundayAttendanceForms(instance=sunday_attendance_instance)
+        attendance_forms = AttendanceForms(instance=attendance_instance)
+    return render(request, 'templates/dashboard/forms/attendance_forms_edit.html',
+                  {'sunday_attendance_forms': sunday_attendance_forms, 'attendance_forms': attendance_forms})
+
+
+
+def edit_wednesday_attendance(request, id):
+    wednesday_attendance_instance = get_object_or_404(SundayAttendance, id=id)
+    attendance_instance = get_object_or_404(Attendance, id=wednesday_attendance_instance.attendance.id)
+    female = request.POST.get("females")
+    male = request.POST.get("males")
+    adults = request.POST.get("adults")
+    children = request.POST.get("children")
+    if request.method == 'POST':
+        wednesday_attendance_forms = SundayAttendanceForms(request.POST, instance=wednesday_attendance_instance)
+        attendance_forms = AttendanceForms(request.POST, instance=attendance_instance)
+        if wednesday_attendance_forms.is_valid() and attendance_forms.is_valid():
+            if int(female) + int(male) > int(adults) + int(children):
+                message = 'Total number of people cannot be greater than the sum of adults and children'
+                messages.warning(request, message)
+                wednesday_attendance_forms = SundayAttendanceForms( instance=wednesday_attendance_instance)
+                attendance_forms = AttendanceForms(instance=wednesday_attendance_instance)
+                return render(request, 'templates/dashboard/forms/attendance_forms_edit.html', {'sunday_attendance_forms': wednesday_attendance_forms, 'attendance_forms': attendance_forms})
+            if int(adults) + int(children) > int(female) + int(male):
+                message = "Sum of adults and and children cannot be greater than the total number of people"
+                messages.warning(request, message)
+                wednesday_attendance_forms = SundayAttendanceForms(instance=wednesday_attendance_instance)
+                attendance_forms = AttendanceForms(instance=wednesday_attendance_instance)
+                return render(request, 'templates/dashboard/forms/attendance_forms_edit.html',
+                              {'sunday_attendance_forms': wednesday_attendance_forms,
+                               'attendance_forms': attendance_forms})
+            sunday_attendance_data = wednesday_attendance_forms.save(commit=False)
+            sunday_attendance_data.save()
+            return redirect('dashboard:index')
+    else:
+        wednesday_attendance_forms = SundayAttendanceForms(instance=wednesday_attendance_instance)
+        attendance_forms = AttendanceForms(instance=attendance_instance)
+    return render(request, 'templates/dashboard/forms/attendance_forms_edit.html',
+                  {'sunday_attendance_forms': wednesday_attendance_forms, 'attendance_forms': attendance_forms})
 
 
 def custom_page_not_found(request, exception):
@@ -199,19 +304,23 @@ def custom_page_not_found(request, exception):
 
 
 def get_filter_options(request):
-    grouped_purchases = Attendance.objects.annotate(year=ExtractYear('date')).values('year').order_by(
-        '-year').distinct()
-    options = [purchase['year'] for purchase in grouped_purchases]
+    try:
+        grouped_purchases = SundayAttendance.objects.annotate(year=ExtractYear('date')).values('year').order_by(
+            '-year').distinct()
+        options = [purchase['year'] for purchase in grouped_purchases]
 
-    return JsonResponse({
-        'options': options,
-    })
+        return JsonResponse({
+            'options': options,
+        })
+    except Exception as e:
+        logger.info(e)
 
 
 def get_leaders_chart(request, year):
     branch_id = request.user.id
-    leaders = Attendance.objects.filter(date__year=year).filter(branch_id=branch_id).annotate(
-        month=ExtractMonth('date')).values('month').annotate(total_leaders=Sum('leaders')).values('month',
+
+    leaders = SundayAttendance.objects.select_related('attendance').filter(date__year=year).filter(attendance__branch_id=branch_id).annotate(
+        month=ExtractMonth('date')).values('month').annotate(total_leaders=Sum('attendance__leaders')).values('month',
                                                                                                   'total_leaders').order_by(
         'month')
     sales_dict = get_year_dict()
@@ -234,8 +343,8 @@ def get_leaders_chart(request, year):
 
 def get_first_timers_chart(request, year):
     branch_id = request.user.id
-    first_timers = Attendance.objects.filter(date__year=year).filter(branch_id=branch_id).annotate(
-        month=ExtractMonth('date')).values('month').annotate(total_first_timers=Sum('first_timers')).values('month',
+    first_timers = SundayAttendance.objects.select_related('attendance').filter(date__year=year).filter(attendance__branch_id=branch_id).annotate(
+        month=ExtractMonth('date')).values('month').annotate(total_first_timers=Sum('attendance__first_timers')).values('month',
                                                                                                             'total_first_timers').order_by(
         'month')
     sales_dict = get_year_dict()
@@ -258,9 +367,8 @@ def get_first_timers_chart(request, year):
 
 def get_consistency_chart(request, year):
     branch_id = request.user.id
-    consistency = Attendance.objects.filter(date__year=year).filter(branch_id=branch_id).annotate(
-        month=ExtractMonth('date')).values('month').annotate(total_consistency=Sum('consistency')).values('month',
-                                                                                                          'total_consistency').order_by(
+    consistency = SundayAttendance.objects.select_related('attendance').filter(date__year=year).filter(attendance__branch_id=branch_id).annotate(
+        month=ExtractMonth('date')).values('month').annotate(total_consistency=Sum('consistency')).values('month', 'total_consistency').order_by(
         'month')
     sales_dict = get_year_dict()
     for group in consistency:
@@ -282,8 +390,8 @@ def get_consistency_chart(request, year):
 
 def get_members_chart(request, year):
     branch_id = request.user.id
-    members = Attendance.objects.filter(date__year=year).filter(branch_id=branch_id).annotate(
-        month=ExtractMonth('date')).values('month').annotate(total_members=Sum('total') - Sum('leaders')).values(
+    members = SundayAttendance.objects.select_related('attendance').filter(date__year=year).filter(attendance__branch_id=branch_id).annotate(
+        month=ExtractMonth('date')).values('month').annotate(total_members=Cast(Sum('attendance__total')- Sum('attendance__leaders'), output_field=FloatField())).values(
         'month', 'total_members').order_by('month')
     sales_dict = get_year_dict()
     for group in members:

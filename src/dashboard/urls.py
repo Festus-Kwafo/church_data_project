@@ -6,8 +6,10 @@ app_name = "dashboard"
 
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
-    path("attendance/", views.AttendanceRecord.as_view(), name="attendance"),
-    path("attendance/<int:id>/", views.edit_attendance, name="edit_attendance"),
+    path("sunday/attendance/", views.SundayAttendanceRecord.as_view(), name="sunday_attendance"),
+    path("sunday/attendance/<int:id>/", views.edit_attendance, name="edit_sunday_attendance"),
+    path("wednesday/attendance/", views.WednesdayAttendanceRecord.as_view(), name="wednesday_attendance"),
+    path("wednesday/attendance/<int:id>/", views.edit_wednesday_attendance, name="edit_wednesday_attendance"),
     path('chart/filter-options/', views.get_filter_options, name='chart-filter-options'),
     path('chart/data/leaders/<int:year>', views.get_leaders_chart, name='leaders_chart-data'),
     path('chart/data/first_timers/<int:year>', views.get_first_timers_chart, name='firsttimers_chart-data'),

@@ -1,0 +1,205 @@
+{% extends '../../../dist/templates/dashboard/base.html' %}
+{% block page_title %}CLC Data{% endblock %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 mb-4">
+            <div class="text-center mb-4 mt-3">
+                <img src="{%static 'images/logo_2022.png' %}" alt="Logo" height="52">
+                <h4 class="text-center mb-4">Wednesday Attendance Form</h4>
+            </div>
+                {%if messages%}
+                {% for message in messages  %}
+                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert"> <i class="bi bi-exclamation-triangle me-1"></i> {{message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+                {% endfor %}
+                {%endif%}
+                <!-- your_template.html -->
+<form method="post">
+  {% csrf_token %}
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" id="step-1-tab" data-toggle="tab" href="#step-1">Step 1</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link disabled" id="step-2-tab" data-toggle="tab" href="#step-2">Step 2</a>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Step 1 -->
+    <div id="step-1" class="tab-pane fade show active mb-3">
+
+                <div class="form-floating mb-3 mt-3">
+                {%  render_field attendance_forms.adults class="form-control" id="adults"%}
+                <label for="adults" class="form-label">Adults</label>
+            </div>
+                <div class="form-floating mb-3">
+                    {%  render_field attendance_forms.females class="form-control" id="females"%}
+                    <label for="Females" class="form-label">Females</label>
+                </div>
+                <div class="form-floating mb-3">
+                    {%  render_field attendance_forms.males class="form-control" id="males"%}
+                    <label for="Males" class="form-label">Males</label>
+                </div>
+            <div class="form-floating mb-3">
+                    {%  render_field attendance_forms.leaders class="form-control" id="leaders"%}
+                    <label for="leaders">Leaders</label>
+                </div>
+                <div class="form-floating mb-3">
+                    {%  render_field attendance_forms.children class="form-control"  id="children"%}
+                    <label for="Children">Children</label>
+                </div>
+            <div class="form-floating mb-3">
+                    {%  render_field attendance_forms.first_timers class="form-control" id="first_timers"%}
+                    <label for="first_timers">First Timers</label>
+                </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="step-2" class="tab-pane fade disabled" >
+                <div class="form-floating mt-3 mb-3">
+                    {{ wednesday_attendance_forms.offering|attr:"type:currency"|attr:"class:form-control"|attr:"id:offering" }}
+                    <label for="offering" class="form-label">Offering</label>
+                </div>
+                <div class="form-floating mb-3">
+                    {{ wednesday_attendance_forms.date|attr:"type:date"|attr:"class:form-control"|attr:"id:date"}}
+                    <label for="date">Date</label>
+                </div>
+    </div>
+  </div>
+
+  <!-- Previous and Next buttons -->
+  <div class="form-group mt-3">
+    <button type="button" class="btn btn-primary" id="previous-btn" style="display: none;">Previous</button>
+    <button type="button" class="btn btn-primary" id="next-btn">Next</button>
+    <button type="submit" class="btn btn-primary" id="submit-btn" style="display: none;">Submit</button>
+  </div>
+</form>
+</div>
+<script>
+  // JavaScript code to handle form navigation
+  document.addEventListener('DOMContentLoaded', function () {
+    const tabs = document.querySelectorAll('.nav-tabs .nav-link');
+    const previousBtn = document.getElementById('previous-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    let currentStep = 0;
+
+    function showStep(stepIndex) {
+      tabs.forEach(function (tab) {
+        tab.classList.remove('active');
+      });
+      tabs[stepIndex].classList.add('active');
+      document.querySelectorAll('.tab-pane').forEach(function (tabPane) {
+        tabPane.classList.remove('show', 'active');
+      });
+      document.getElementById('step-' + (stepIndex + 1)).classList.add('show', 'active');
+      document.getElementById('step-' + (stepIndex + 1)).classList.remove('disabled');
+
+      if (stepIndex === 0) {
+        previousBtn.style.display = 'none';
+      } else {
+        previousBtn.style.display = 'inline-block';
+      }
+
+      if (stepIndex === tabs.length - 1) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'inline-block';
+      } else {
+        nextBtn.style.display = 'inline-block';
+        submitBtn.style.display = 'none';
+      }
+    }
+
+    function goToNextStep() {
+      currentStep++;
+      showStep(currentStep);
+      console.log("Validate data");
+    }
+
+    function goToPreviousStep() {
+      currentStep--;
+      showStep(currentStep);
+    }
+
+    tabs.forEach(function (tab, index) {
+      tab.addEventListener('click', function () {
+        currentStep = index;
+        showStep(currentStep);
+      });
+    });
+
+    previousBtn.addEventListener('click', goToPreviousStep);
+    nextBtn.addEventListener('click', goToNextStep);
+  });
+</script>
+
+        <script>
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1; //January is 0!
+            var yyyy = today.getFullYear();
+
+            if (dd < 10) {
+               dd = '0' + dd;
+            }
+
+            if (mm < 10) {
+               mm = '0' + mm;
+            }
+
+            today = yyyy + '-' + mm + '-' + dd;
+            document.getElementById("date").setAttribute("max", today);
+
+            // get the form element and the reset button
+            const form = document.querySelector('form');
+            const resetButton = document.querySelector('#reset-button');
+
+
+    var currencyInput = document.querySelectorAll( 'input[type="currency"]' );
+
+    for ( var i = 0; i < currencyInput.length; i++ ) {
+
+        var currency = 'GHS'
+        onBlur( {
+            target: currencyInput[ i ]
+        } )
+
+        currencyInput[ i ].addEventListener( 'focus', onFocus )
+        currencyInput[ i ].addEventListener( 'blur', onBlur )
+
+        function localStringToNumber( s ) {
+            return Number( String( s ).replace( /[^0-9.-]+/g, "" ) )
+        }
+
+        function onFocus( e ) {
+            var value = e.target.value;
+            e.target.value = value ? localStringToNumber( value ) : ''
+        }
+
+        function onBlur( e ) {
+            var value = e.target.value
+
+            var options = {
+                maximumFractionDigits: 2,
+                currency: currency,
+                style: "currency",
+                currencyDisplay: "symbol"
+            }
+
+            e.target.value = ( value || value == 0 ) ?
+                localStringToNumber( value ).toLocaleString( undefined, options ) :
+                ''
+        }
+    }
+        </script>
+
+    </div>
+</div>
+{%endblock%}
