@@ -15,9 +15,9 @@ RUN pip install -r /church_data_project/requirements.txt
 WORKDIR /church_data_project/src
 
 #install npm dependencies 
-RUN apt-get update && apt-get upgrade -y && curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
-apt-get install -y nodejs
-
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y nodejs \
+    npm
 
 
 COPY src/package*.json ./

@@ -28,3 +28,6 @@
 {"message": "Cannot resolve keyword 'date' into field. Choices are: adults, branch, branch_id, children, females, first_timers, id, leaders, males, special_event_attendance, sunday_attendance, total, wednesday_attendance", "time": "2023-06-07T00:56:23.042378"}
 {"message": "(2013, 'Lost connection to server during query')", "time": "2023-06-07T11:49:19.465343"}
 {"user": "accra", "message": "No data for previous sunday", "time": "2023-07-04T14:10:23.514872"}
+{"user": "accra", "message": "No data for previous sunday", "time": "2023-07-04T15:29:09.887936"}
+{"user": "Mangolane", "message": "No data for previous sunday", "time": "2023-07-04T15:31:32.674615"}
+{"user": "Mangolane", "message": "No data for two previous sunday", "time": "2023-07-04T15:34:41.998981"}
