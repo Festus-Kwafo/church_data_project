@@ -71,11 +71,11 @@ if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('TEST_MYSQL_DB'),
-            'USER': os.environ.get('TEST_MYSQL_USER'),
-            'PASSWORD': os.environ.get('TEST_MYSQL_PASSWORD'),
-            'HOST': os.environ.get('TEST_MYSQL_HOST'),
-            'PORT': os.environ.get('TEST_MYSQL_PORT'),
+            'NAME': os.getenv('TEST_MYSQL_DB'),
+            'USER': os.getenv('TEST_MYSQL_USER'),
+            'PASSWORD': os.getenv('TEST_MYSQL_PASSWORD'),
+            'HOST': os.getenv('TEST_MYSQL_HOST'),
+            'PORT': os.getenv('TEST_MYSQL_PORT'),
         }
     }
 else:
