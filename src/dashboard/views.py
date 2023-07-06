@@ -20,7 +20,7 @@ from dashboard.chart import colorPrimary, get_year_dict, months
 from dashboard.filter import data_filter, previous_sunday, two_previous_sunday
 
 from .forms import AttendanceForms, SundayAttendanceForms, WednesdayAttendanceForms
-from .models import Attendance, SundayAttendance, SpecialEventAttendance, WednesdayAttendance
+from .models import Attendance, SundayAttendance,  WednesdayAttendance
 
 logger = logging.getLogger("core")
 
@@ -34,11 +34,11 @@ class IndexView(View):
         user = request.user
         branch_data = SundayAttendance.objects.select_related('attendance').filter(attendance__branch_id=user.id)
         if not branch_data.filter(date=previous_sunday()).exists():
-            logger.debug("No data for previous sunday", extra={'user': request.user.branch})
+            logger.debug("No data for previous sunday", extra={'user': request.user.branch_name})
             messages.warning(request, 'Please update attendance for previous sunday')
             return redirect('dashboard:sunday_attendance')
         if not branch_data.filter(date=two_previous_sunday()).exists():
-            logger.debug("No data for two previous sunday", extra={'user': request.user.branch})
+            logger.debug("No data for two previous sunday", extra={'user': request.user.branch_name})
             messages.warning(request, 'Please update attendance for two previous sunday')
             return redirect('dashboard:sunday_attendance')
         try:
@@ -143,36 +143,36 @@ class SundayAttendanceRecord(View):
         male = request.POST.get("males")
         adults = request.POST.get("adults")
         children = request.POST.get("children")
+        context = {"sunday_attendance_forms": sunday_attendance_forms, "attendance_forms": attendance_forms}
         if sunday_attendance_forms.is_valid() and attendance_forms.is_valid():
             attendance_data = attendance_forms.save(commit=False)
             attendance_data.branch = user
             if SundayAttendance.objects.filter(date=input_date, attendance=attendance_data).exists():
                 message = 'Data with this date already recorded. Check the dashboard to update it'
                 messages.warning(request, message)
-                return render(request, self.template_name)
+                return render(request, self.template_name, context)
             if int(female) + int(male) > int(adults) + int(children):
                 message = 'Total number of people cannot be greater than the sum of adults and children'
                 messages.warning(request, message)
-                return render(request, self.template_name)
+                return render(request, self.template_name, context)
             if int(adults) + int(children) > int(female) + int(male):
-                message = "Sum of adults and and children cannot be greater than the total number of people"
+                message = "Sum of adults and children cannot be greater than the total number of people"
                 messages.warning(request, message)
-                return render(request, self.template_name)
+                return render(request, self.template_name, context)
             sunday_attendance_data = sunday_attendance_forms.save(commit=False)
             sunday_attendance_data.attendance = attendance_data
             attendance_data.save()
             sunday_attendance_data.save()
-
             return redirect("dashboard:index")
         else:
             for field, error in sunday_attendance_forms.errors.items():
-                message = f"{strip_tags(error)}"
+                message1 = f"{strip_tags(error)} {field}"
+                messages.warning(request, message1)
                 break
             for field, error in attendance_forms.errors.items():
-                message = f"{strip_tags(error)}"
+                message2 = f"{strip_tags(error)} {field}"
+                messages.warning(request, message2)
                 break
-            context = {k: v for k, v in request.POST.items()}
-            messages.warning(request, message)
         return render(request, self.template_name, context)
 
 
@@ -182,7 +182,6 @@ class WednesdayAttendanceRecord(PermissionRequiredMixin, View):
     form_class_1 = WednesdayAttendanceForms
     form_class_2 = AttendanceForms
     permission_required = 'dashboard.add_midweek_record'
-
 
     def get(self, request):
         context = {"wednesday_attendance_forms": self.form_class_1, "attendance_forms": self.form_class_2}

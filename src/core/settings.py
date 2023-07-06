@@ -67,28 +67,16 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.getenv('TEST_MYSQL_DB'),
-            'USER': os.getenv('TEST_MYSQL_USER'),
-            'PASSWORD': os.getenv('TEST_MYSQL_PASSWORD'),
-            'HOST': os.getenv('TEST_MYSQL_HOST'),
-            'PORT': os.getenv('TEST_MYSQL_PORT'),
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('TEST_MYSQL_DB'),
+        'USER': os.environ.get('TEST_MYSQL_USER'),
+        'PASSWORD': os.environ.get('TEST_MYSQL_PASSWORD'),
+        'HOST': os.environ.get('TEST_MYSQL_HOST'),
+        'PORT': os.environ.get('TEST_MYSQL_PORT'),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.getenv('MYSQL_DB'),
-            'USER': os.getenv('MYSQL_USER'),
-            'PASSWORD': os.getenv('MYSQL_PASSWORD'),
-            'HOST': os.getenv('MYSQL_HOST'),
-            'PORT': os.getenv('MYSQL_PORT'),
-        }
-    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

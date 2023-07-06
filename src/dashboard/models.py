@@ -5,13 +5,13 @@ from accounts.models import User
 # Create your models here.
 class Attendance(models.Model):
     branch = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users')
-    adults = models.CharField(max_length=6)
-    females = models.CharField(max_length=6)
-    males = models.CharField(max_length=6)
-    leaders = models.CharField(max_length=6)
-    children = models.CharField(max_length=6)
-    first_timers = models.CharField(max_length=6)
-    total = models.CharField(max_length=6)
+    adults = models.IntegerField()
+    females = models.IntegerField()
+    males = models.IntegerField()
+    leaders = models.IntegerField()
+    children = models.IntegerField()
+    first_timers = models.IntegerField()
+    total = models.IntegerField()
     @property
     def cal_total(self):
         return int(self.adults) + int(self.children)
@@ -22,11 +22,14 @@ class Attendance(models.Model):
     def __str__(self):
         return self.branch.branch
 
+    class Meta:
+        db_table = "attendance"
+
 class SundayAttendance(models.Model):
     attendance = models.ForeignKey(Attendance, on_delete=models.CASCADE, related_name='sunday_attendance')
-    consistency = models.CharField(max_length=6)
-    offering = models.CharField(max_length=11)
-    tithe = models.CharField(max_length=11)
+    consistency = models.IntegerField()
+    offering = models.DecimalField(decimal_places=2, max_digits=10)
+    tithe = models.DecimalField(decimal_places=2, max_digits=10)
     approved = models.BooleanField(default=False)
     # Ratio
     leaders_to_members = models.CharField(max_length=6, default="0:0")
@@ -62,7 +65,7 @@ class SundayAttendance(models.Model):
             return find_gcd(denominator % numerator, numerator)
 
         numerator = int(self.attendance.leaders)
-        denominator = round(float(''.join(filter(str.isdigit, self.offering))))
+        denominator = round(self.offering)
 
         gcd = find_gcd(numerator, denominator)
 
@@ -79,7 +82,7 @@ class SundayAttendance(models.Model):
             return find_gcd(denominator % numerator, numerator)
 
         numerator = int(self.attendance.total) - int(self.attendance.leaders)
-        denominator = round(float(''.join(filter(str.isdigit, self.offering))))
+        denominator = round(self.offering)
 
         gcd = find_gcd(numerator, denominator)
 
@@ -94,10 +97,13 @@ class SundayAttendance(models.Model):
         self.members_to_offering = self.members_to_offering_ratio
         super(SundayAttendance, self).save(*args, **kwarg)
 
+    class Meta:
+        db_table = "sunday_attendance"
+
 
 class WednesdayAttendance(models.Model):
     attendance = models.ForeignKey(Attendance, on_delete=models.CASCADE, related_name='wednesday_attendance')
-    offering = models.CharField(max_length=11)
+    offering = models.DecimalField(decimal_places=2, max_digits=10)
     approved = models.BooleanField(default=False)
 
     date = models.DateField()
@@ -106,11 +112,14 @@ class WednesdayAttendance(models.Model):
     def __str__(self):
         return self.attendance.branch.branch + " " + str(self.date)
 
+    class Meta:
+        db_table = "wednesday_attendance"
+
 
 class SpecialEventAttendance(models.Model):
     attendance = models.ForeignKey(Attendance, on_delete=models.CASCADE, related_name='special_event_attendance')
     service_name = models.CharField(max_length=100)
-    offering = models.CharField(max_length=11)
+    offering = models.DecimalField(decimal_places=2, max_digits=10)
     approved = models.BooleanField(default=False)
 
     date = models.DateField()
@@ -119,6 +128,9 @@ class SpecialEventAttendance(models.Model):
 
     def __str__(self):
         return self.service_name + " " + str(self.date)
+
+    class Meta:
+        db_table = "special_event_attendance"
 
 class DashboardPermission(models.Model):
     class Meta:

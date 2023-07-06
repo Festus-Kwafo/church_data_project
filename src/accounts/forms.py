@@ -13,7 +13,7 @@ class RegistrationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'branch','phonenumber')
+        fields = ('username', 'email', 'branch_name', 'phonenumber')
 
     def clean_username(self):
         username = self.cleaned_data['username'].lower()
@@ -41,7 +41,7 @@ class RegistrationForm(forms.ModelForm):
             {'class': 'form-control', 'placeholder': 'OyibiAdmin'})
         self.fields['email'].widget.attrs.update(
             {'class': 'form-control', 'placeholder': 'johndoe@gmail.com', 'name': 'email', 'id': 'id_email'})
-        self.fields['branch'].widget.attrs.update(
+        self.fields['branch_name'].widget.attrs.update(
             {'class': 'form-control', 'placeholder': 'Oyibi', 'name': 'branch', 'id': 'id_branch'})
         self.fields['phonenumber'].widget.attrs.update(
             {'class': 'form-control', 'placeholder': '0555358099'})

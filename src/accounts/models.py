@@ -8,7 +8,7 @@ from accounts.managers import AccountManager
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=100, unique=True)
     phonenumber = models.CharField(max_length=10, null=True, blank=True)
-    branch = models.CharField(max_length=100, default="accra")
+    branch_name = models.CharField(max_length=100, default="accra")
     email = models.EmailField()
     otp_number = models.IntegerField(default=000000)
     otp_verified = models.BooleanField(default=False)
@@ -24,7 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        db_table = "users"
+        db_table = "branches"
 
     def count_notifications(self):
         return self.notifications.filter(read=False).count()
@@ -35,5 +35,5 @@ class User(AbstractBaseUser, PermissionsMixin):
         return notifications[:100]
 
     def __str__(self):
-        return self.branch
+        return self.branch_name
 
