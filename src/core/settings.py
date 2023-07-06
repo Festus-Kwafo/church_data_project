@@ -70,11 +70,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('TEST_MYSQL_DB'),
-        'USER': os.environ.get('TEST_MYSQL_USER'),
-        'PASSWORD': os.environ.get('TEST_MYSQL_PASSWORD'),
-        'HOST': os.environ.get('TEST_MYSQL_HOST'),
-        'PORT': os.environ.get('TEST_MYSQL_PORT'),
+        'NAME': os.environ.get('MYSQL_DB'),
+        'USER': os.environ.get('MYSQL_USER'),
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
+        'HOST': os.environ.get('MYSQL_HOST'),
+        'PORT': os.environ.get('MYSQL_PORT'),
     }
 }
 
