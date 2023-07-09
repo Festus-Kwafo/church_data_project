@@ -5,7 +5,7 @@ from .models import User
 
 class RegistrationForm(forms.ModelForm):
     username = forms.CharField(label='Username', min_length=4, max_length=50)
-    branch = forms.CharField(label='Branch name', min_length=4, max_length=50)
+    branch_name = forms.CharField(label='Branch name', min_length=4, max_length=50)
     email = forms.EmailField(label='Email Address', max_length=100)
     phonenumber = forms.CharField(label='Phone Number', max_length=100)
     password = forms.CharField(label='Password', widget=forms.PasswordInput)
@@ -42,7 +42,7 @@ class RegistrationForm(forms.ModelForm):
         self.fields['email'].widget.attrs.update(
             {'class': 'form-control', 'placeholder': 'johndoe@gmail.com', 'name': 'email', 'id': 'id_email'})
         self.fields['branch_name'].widget.attrs.update(
-            {'class': 'form-control', 'placeholder': 'Oyibi', 'name': 'branch', 'id': 'id_branch'})
+            {'class': 'form-control', 'placeholder': 'Oyibi', 'name': 'branch_name', 'id': 'id_branch'})
         self.fields['phonenumber'].widget.attrs.update(
             {'class': 'form-control', 'placeholder': '0555358099'})
         self.fields['password'].widget.attrs.update(

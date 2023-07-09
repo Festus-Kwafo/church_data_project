@@ -182,6 +182,7 @@ class WednesdayAttendanceRecord(PermissionRequiredMixin, View):
     form_class_1 = WednesdayAttendanceForms
     form_class_2 = AttendanceForms
     permission_required = 'dashboard.add_midweek_record'
+    login_url = 'accounts:login'
 
     def get(self, request):
         context = {"wednesday_attendance_forms": self.form_class_1, "attendance_forms": self.form_class_2}

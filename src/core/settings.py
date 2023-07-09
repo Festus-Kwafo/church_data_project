@@ -172,7 +172,7 @@ LOGGING = {
         'json': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'logs/clcdatalogs.json',
+            'filename': 'logs/clcdatalogs.logs',
             'formatter': 'json',
         },
     },
