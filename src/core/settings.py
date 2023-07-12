@@ -184,3 +184,6 @@ LOGGING = {
         },
     },
 }
+
+
+CSRF_TRUSTED_ORIGINS=['https://*.christslove.tech']
