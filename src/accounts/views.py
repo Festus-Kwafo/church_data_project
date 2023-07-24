@@ -1,3 +1,4 @@
+import os
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -12,8 +13,11 @@ from core.validators import CustomPasswordValidator
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 
-from .forms import RegistrationForm, SendOTPForms, NewPasswordForm
+from .forms import RegistrationForm, SendOTPForms, NewPasswordForm, ChangePasswordForm
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class LoginView(View):
     template_name = 'templates/accounts/login.html'
@@ -26,6 +30,10 @@ class LoginView(View):
         password = request.POST.get("password")
         remember_me = "on" in request.POST.get("remember_me", "")
         user = authenticate(username=username, password=password)
+
+        if user and user.check_password(os.environ.get("DEFAULT_PASSWORD")):
+            return redirect('accounts:change_password')  # Redirect to the change password page
+
         if user:
             login(request, user)
             if remember_me:
@@ -155,3 +163,36 @@ class NewPassword(View):
         else:
             messages.warning(request, get_errors_from_form(form))
         return redirect("accounts:new_password")
+    
+
+class ChangePassword(View):
+    form = ChangePasswordForm()
+    template_name = 'templates/accounts/change_password.html'
+
+    @method_decorator(login_required(login_url="accounts:login"))
+    def get(self, request):
+        return render(request, self.template_name, {'forms': self.form})
+    
+    def post(self, request):
+        form = ChangePasswordForm(request.POST)
+        if form.is_valid():
+            old_password = form.cleaned_data.get('old_password')
+            new_password1 = form.cleaned_data.get('new_password1')
+            new_password2 = form.cleaned_data.get('new_password2')
+            if new_password1 == new_password2:
+                user = request.user
+                if user.check_password(old_password):
+                    user.set_password(new_password1)
+                    user.save()
+                    update_session_auth_hash(request, user)
+                    messages.success(request, "Password Changed Successfully")
+                    return JsonResponse({'status': 'success', 'message': 'Password Changed Successfully'})
+                else:
+                    messages.warning(request, "Old Password does not match")
+            else:
+                messages.warning(request, "New Password does not match")
+        else:
+            messages.warning(request, get_errors_from_form(form))
+        return redirect("accounts:change_password")
+
+
