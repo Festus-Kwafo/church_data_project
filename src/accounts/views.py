@@ -32,6 +32,7 @@ class LoginView(View):
         user = authenticate(username=username, password=password)
 
         if user and user.check_password(os.environ.get("DEFAULT_PASSWORD")):
+            login(request, user)
             return redirect('accounts:change_password')  # Redirect to the change password page
 
         if user:
@@ -169,9 +170,10 @@ class ChangePassword(View):
     form = ChangePasswordForm()
     template_name = 'templates/accounts/change_password.html'
 
+    
     def get(self, request):
         return render(request, self.template_name, {'forms': self.form})
-    
+
     def post(self, request):
         form = ChangePasswordForm(request.POST)
         if form.is_valid():
@@ -180,11 +182,13 @@ class ChangePassword(View):
             new_password2 = form.cleaned_data.get('new_password2')
             if new_password1 == new_password2:
                 user = request.user
+                print(user)
                 if user.check_password(old_password):
                     user.set_password(new_password1)
                     user.save()
                     update_session_auth_hash(request, user)
                     messages.success(request, "Password Changed Successfully")
+                    logout(request)
                     return JsonResponse({'status': 'success', 'message': 'Password Changed Successfully'})
                 else:
                     messages.warning(request, "Old Password does not match")
