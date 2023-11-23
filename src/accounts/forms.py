@@ -1,4 +1,6 @@
 from django import forms
+from django_countries.widgets import CountrySelectWidget
+from django_countries.fields import CountryField
 
 from .models import User
 
@@ -8,12 +10,15 @@ class RegistrationForm(forms.ModelForm):
     branch_name = forms.CharField(label='Branch name', min_length=4, max_length=50)
     email = forms.EmailField(label='Email Address', max_length=100)
     phonenumber = forms.CharField(label='Phone Number', max_length=100)
+    country = CountryField(blank_label="(Select country)").formfield()
+    planted_on = forms.DateField(label='Planted on', widget=forms.DateInput(attrs={'type': 'date'}))
     password = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Repeat password', widget=forms.PasswordInput)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'branch_name', 'phonenumber')
+        fields = ('username', 'email', 'branch_name', 'phonenumber', 'country', 'planted_on')
+        widgets = {"country": CountrySelectWidget()}
 
     def clean_username(self):
         username = self.cleaned_data['username'].lower()

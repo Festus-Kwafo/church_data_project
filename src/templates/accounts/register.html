@@ -32,7 +32,7 @@
                         <div class="form-input">
                            <label>Your account will be under this email</label>
                            <div class="input-items default">
-                              <input type="email" name="email" maxlength="100"  placeholder="johndoe@gmail.com" id="id_email" required="">
+                              <input type="email" name="email" maxlength="100"  placeholder="nicetoseeyou@email.com" id="id_email" required="">
                                <i class="lni lni-envelope"></i>
                            </div>
                         </div>
@@ -58,11 +58,37 @@
                         </div>
                         <!-- form input -->
                      </div>
+
+                      <div class="col-md-6">
+                      <div class="form-input">
+                        <label>Country</label>
+                      <div class="input-items default">
+                          {% load countries %}
+                            {% get_countries as countries %}
+                            <select class="form-control" name="country">
+                            {% for country in countries %}
+                                <option  value="{{ country.code }}">{{ country.name }}</option>
+                            {% endfor %}
+                            </select>
+                            <i class="lni lni-flag"></i>
+                      </div>
+                      </div>
+                      </div>
+                        <div class="col-md-6">
+                        <div class="form-input">
+                           <label>Date Planted</label>
+                           <div class="input-items default">
+                              <input class="form-control" placeholder="07/01/2018" type="date" name="planted_on" id="id_planted_on">
+                              <i class="lni lni-calender"></i>
+                           </div>
+                        </div>
+
+                        </div>
                      <div class="col-md-6">
                         <div class="form-input">
                            <label>Password for your account</label>
                            <div class="input-items default">
-                              <input type="password" name="password" class="form-control" placeholder="Password" required="" id="id_password">
+                              <input type="password" name="password" class="form-control" placeholder="Shhh...🤫" required="" id="id_password">
                               <i class="lni lni-key"></i>
                            </div>
                         </div>
@@ -72,7 +98,7 @@
                         <div class="form-input">
                            <label>Repeat Password for your account</label>
                            <div class="input-items default">
-                              <input type="password" name="password2" class="form-control" placeholder="Repeat Password" required="" id="id_password2">
+                              <input type="password" name="password2" class="form-control" placeholder="Shhh...🤫 but one more time" required="" id="id_password2">
                               <i class="lni lni-key"></i>
                            </div>
                         </div>

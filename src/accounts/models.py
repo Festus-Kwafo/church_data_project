@@ -1,7 +1,7 @@
 # Create your models here.
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
-
+from django_countries.fields import CountryField
 from accounts.managers import AccountManager
 
 
@@ -13,9 +13,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     otp_number = models.IntegerField(default=000000)
     otp_verified = models.BooleanField(default=False)
     last_login = models.DateTimeField(auto_now=True)
+    planted_on = models.DateField(null=True, blank=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    country = CountryField()
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
     # Django stuff for authentication
     USERNAME_FIELD = "username"
     objects = AccountManager()

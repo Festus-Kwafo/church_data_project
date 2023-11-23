@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'dashboard',
     'storages',
     'widget_tweaks',
+    'django_countries',
 ]
 
 MIDDLEWARE = [
