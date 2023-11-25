@@ -8,4 +8,4 @@ services:
       - "80:8000"
     image: app:clcdata
     container_name: cldata_container
-    command: gunicorn --bind 0.0.0.0:8000 core.wsgi
+    command: gunicorn --bind 0.0.0.0:8000 core.wsgi --log-level=debug
