@@ -14,3 +14,5 @@
 {"user": "Mangolane", "message": "No data for previous sunday", "time": "2023-08-07T17:22:13.371927"}
 {"user": "Mangolane", "message": "No data for previous sunday", "time": "2023-08-07T17:41:50.056558"}
 {"user": "accra", "message": "No data for previous sunday", "time": "2023-11-23T22:22:00.810847"}
+{"message": "unsupported operand type(s) for -: 'int' and 'NoneType'", "time": "2023-11-25T13:11:41.432145"}
+{"message": "unsupported operand type(s) for -: 'int' and 'NoneType'", "time": "2023-11-25T13:12:22.146144"}

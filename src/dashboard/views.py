@@ -23,7 +23,7 @@ from .forms import AttendanceForms, SundayAttendanceForms, WednesdayAttendanceFo
 from .models import Attendance, SundayAttendance,  WednesdayAttendance
 
 logger = logging.getLogger("core")
-
+import traceback
 
 class IndexView(View):
     template_name = 'templates/dashboard/index.html'
@@ -93,8 +93,8 @@ class IndexView(View):
             # Calculate previous sunday increase
             consistency_pre_sun_percent = ((int(latest_data.consistency) - int(pre_sun_data.consistency)) / int(
                 pre_sun_data.consistency)) * 100
-        except Exception as e:
-            logger.debug(e)
+        except Exception:
+            print(traceback.format_exc())
             messages.warning(request, 'Error occurred while processing data')
             return redirect('dashboard:sunday_attendance')
 
@@ -166,10 +166,12 @@ class SundayAttendanceRecord(View):
             return redirect("dashboard:index")
         else:
             for field, error in sunday_attendance_forms.errors.items():
+                logger.debug(error)
                 message1 = f"{strip_tags(error)} {field}"
                 messages.warning(request, message1)
                 break
             for field, error in attendance_forms.errors.items():
+                logger.debug(error)
                 message2 = f"{strip_tags(error)} {field}"
                 messages.warning(request, message2)
                 break

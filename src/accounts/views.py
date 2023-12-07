@@ -12,6 +12,7 @@ from accounts.utils.functions import get_errors_from_form, send_otp_sms, get_otp
 from core.validators import CustomPasswordValidator
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
+import logging
 
 from .forms import RegistrationForm, SendOTPForms, NewPasswordForm, ChangePasswordForm
 
@@ -23,19 +24,23 @@ class LoginView(View):
     template_name = 'templates/accounts/login.html'
 
     def get(self, request):
+        logging.debug("Login page requested" + request.get_full_path())
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
         username = request.POST.get("username")
         password = request.POST.get("password")
         remember_me = "on" in request.POST.get("remember_me", "")
+        logging.debug(f"Login attempt for {username} with remember_me={remember_me}")
         user = authenticate(username=username, password=password)
 
         if user and user.check_password(os.environ.get("DEFAULT_PASSWORD")):
+            logging.debug(f"{username} User logged in with default password, redirecting to change password page")
             login(request, user)
             return redirect('accounts:change_password')  # Redirect to the change password page
 
         if user:
+            logging.debug(f"{username} User logged in successfully")
             login(request, user)
             if remember_me:
                 request.session.set_expiry(86400 * 30)
@@ -45,6 +50,7 @@ class LoginView(View):
             return redirect(redirect_url)
         else:
             context = {k: v for k, v in request.POST.items()}
+            logging.debug(f"{username} User login failed")
             messages.warning(request, "Invalid credentials")
             return render(request, self.template_name, context)
 
@@ -52,11 +58,11 @@ class LoginView(View):
 class RegisterBranch(View):
     template_name = 'templates/accounts/register.html'
 
-    # @method_decorator(login_required(login_url="admin:login"))
     @method_decorator(staff_member_required)
     def get(self, request):
         registerForm = RegistrationForm(request.POST)
         context = {'forms': registerForm}
+        logging.debug("Register page requested" + request.get_full_path())
         return render(self.request, self.template_name, context)
 
     def post(self, request):
@@ -67,9 +73,11 @@ class RegisterBranch(View):
             user.set_password(registerForm.cleaned_data['password'])
             user.created_at = timezone.now()
             user.save()
+            logging.debug(f"{user.username} User registered successfully")
         else:
             error_message = get_errors_from_form(registerForm)
             messages.warning(request, error_message)
+            logging.debug(f"User registration failed")
             return redirect('accounts:register')
         return redirect('accounts:login')
 
@@ -77,6 +85,8 @@ class RegisterBranch(View):
 class LogoutView(View):
     def get(self, request, *args, **kwargs):
         logout(request)
+        messages.success(request, "You have been logged out")
+        logging.debug(f"{request.user.username} User logged out successfully")
         return redirect('accounts:login')
 
 
@@ -86,6 +96,7 @@ class SendOTP(View):
 
     def get(self, request):
         form = SendOTPForms()
+        logging.debug("Reset Password page requested" + request.get_full_path())
         return render(request, self.template_name, {'forms': form})
 
     def post(self, request):
@@ -96,12 +107,15 @@ class SendOTP(View):
             if user:
                 otp_user = User.objects.get(phonenumber=phone_number)
                 otp_user.otp_number = self.otp_number
+                logging.debug(f"{otp_user.username} User requested for OTP {self.otp_number}")
                 otp_user.otp_verified = False
                 otp_user.save()
                 send_otp_sms(self.otp_number, phone_number)
+                logging.debug(f"{otp_user.username} User OTP sent successfully")
                 request.session['session_number'] = f'{phone_number}'
                 return redirect("accounts:otp_verification")
             else:
+                logging.error(f"User does not exist with {phone_number}")
                 messages.warning(request, "Account does not Exist with is PhoneNumber")
                 return redirect("accounts:reset_password")
         else:
@@ -133,6 +147,7 @@ def resend_otp(request):
     phone_number = request.session.get('session_number')
     user = User.objects.get(phonenumber=phone_number)
     user.otp_number = get_otp()
+    logging.debug(f"{user.username} User requested for OTP {user.otp_number}")
     user.save()
     send_otp_sms(user.otp_number, phone_number)
     return redirect("accounts:otp_verification")
@@ -141,6 +156,7 @@ def resend_otp(request):
 class NewPassword(View):
     def get(self, request):
         form = NewPasswordForm()
+        logging.debug("New Password page requested" + request.get_full_path())
         return render(request, 'templates/accounts/new_password.html', {'forms': form})
 
     def post(self, request):
@@ -152,13 +168,17 @@ class NewPassword(View):
             password2 = form.cleaned_data.get('new_password2')
             try:
                 validator.validate(password1)
+                logging.debug(f"{request.user.username} User validation passed")
             except ValidationError as e:
+                logging.debug(f"{request.user.username} User changed password failed")
                 return JsonResponse({'status': 'error', 'message': str(e.message)})
             if password1 == password2:
                 user = request.user
                 user.set_password(password1)
                 user.save()
+                logging.debug(f"{request.user.username} User changed password successfully")
                 update_session_auth_hash(request, user)
+                logging.debug(f"{request.user.username} User logged out successfully")
                 logout(request)
                 return JsonResponse({'status': 'success', 'message': 'Password Changed Successfully'})
         else:

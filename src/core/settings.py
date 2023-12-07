@@ -3,7 +3,7 @@ from pathlib import Path
 
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
-
+import json_log_formatter
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -136,12 +136,58 @@ if USE_S3:
     PUBLIC_MEDIA_LOCATION = 'media'
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
     DEFAULT_FILE_STORAGE = 'core.config.PublicMediaStorage'
+
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        'handlers': {
+            'logtail': {
+                'class': 'logtail.LogtailHandler',
+                'source_token': os.environ.get("LOGTAIL_SOURCE_TOKEN"),
+            },
+        },
+        "loggers": {
+            "": {
+                "handlers": [
+                    "logtail",
+                ],
+                "level": "INFO",
+            },
+        },
+    }
+
 else:
     STATIC_URL = '/static/'
     STATICFILES_DIRS = (os.path.join(BASE_DIR, 'dist'), os.path.join(BASE_DIR, 'static'))
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    # Logging
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'json': {
+                '()': 'json_log_formatter.JSONFormatter',
+                'format': '%(asctime)s %(levelname)s %(name)s %(message)s'
+            },
+        },
+        'handlers': {
+            'json': {
+                'level': 'DEBUG',
+                'class': 'logging.FileHandler',
+                'filename': 'logs/clcdatalogs.logs',
+                'formatter': 'json',
+            },
+        },
+        'loggers': {
+            'core': {
+                'handlers': ['json'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
+        },
+    }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -156,35 +202,6 @@ MESSAGE_TAGS = {
 
 # Auth User
 AUTH_USER_MODEL = 'accounts.User'
-
-import json_log_formatter
-
-# Logging
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'json': {
-            '()': 'json_log_formatter.JSONFormatter',
-            'format': '%(asctime)s %(levelname)s %(name)s %(message)s'
-        },
-    },
-    'handlers': {
-        'json': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'logs/clcdatalogs.logs',
-            'formatter': 'json',
-        },
-    },
-    'loggers': {
-        'core': {
-            'handlers': ['json'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
 
 
 CSRF_TRUSTED_ORIGINS=['https://*.christslove.tech']

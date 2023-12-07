@@ -1,3 +1,5 @@
+import logging
+
 from django import forms
 from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import CountryField
@@ -36,6 +38,7 @@ class RegistrationForm(forms.ModelForm):
     def clean_email(self):
         email = self.cleaned_data['email']
         if User.objects.filter(email=email).exists():
+            logging.debug(f"{email} Email already exists")
             raise forms.ValidationError(
                 'Please use another Email, that is already taken')
         return email
