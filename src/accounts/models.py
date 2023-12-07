@@ -7,7 +7,7 @@ from accounts.managers import AccountManager
 
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=100, unique=True)
-    phonenumber = models.CharField(max_length=10, null=True, blank=True)
+    phonenumber = models.CharField(max_length=15, null=True, blank=True)
     branch_name = models.CharField(max_length=100, default="accra")
     email = models.EmailField()
     otp_number = models.IntegerField(default=000000)
