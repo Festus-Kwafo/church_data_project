@@ -20,6 +20,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     # Django stuff for authentication
     USERNAME_FIELD = "username"
     objects = AccountManager()

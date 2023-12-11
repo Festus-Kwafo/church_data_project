@@ -8,11 +8,12 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
 from .models import User
-from accounts.utils.functions import get_errors_from_form, send_otp_sms, get_otp
+from accounts.utils.functions import get_errors_from_form, send_otp_sms, get_otp, generate_password
 from core.validators import CustomPasswordValidator
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 import logging
+
 
 from .forms import RegistrationForm, SendOTPForms, NewPasswordForm, ChangePasswordForm
 
@@ -34,7 +35,7 @@ class LoginView(View):
         logging.debug(f"Login attempt for {username} with remember_me={remember_me}")
         user = authenticate(username=username, password=password)
 
-        if user and user.check_password(os.environ.get("DEFAULT_PASSWORD")):
+        if user and user.user_must_change_password:
             logging.debug(f"{username} User logged in with default password, redirecting to change password page")
             login(request, user)
             return redirect('accounts:change_password')  # Redirect to the change password page
@@ -70,7 +71,10 @@ class RegisterBranch(View):
         if registerForm.is_valid():
             user = registerForm.save(commit=False)
             user.email = registerForm.cleaned_data['email']
-            user.set_password(registerForm.cleaned_data['password'])
+            logging.debug(f"Generate password for {user.username}")
+            password = generate_password()
+            send_otp_sms(password, user.phonenumber)
+            user.set_password(password)
             user.created_at = timezone.now()
             user.save()
             logging.debug(f"{user.username} User registered successfully")
@@ -192,6 +196,8 @@ class ChangePassword(View):
 
     
     def get(self, request):
+        messages.info(request, "You must change your password")
+        logging.debug("Change Password page requested" + request.get_full_path())
         return render(request, self.template_name, {'forms': self.form})
 
     def post(self, request):
@@ -202,15 +208,17 @@ class ChangePassword(View):
             new_password2 = form.cleaned_data.get('new_password2')
             if new_password1 == new_password2:
                 user = request.user
-                print(user)
                 if user.check_password(old_password):
                     user.set_password(new_password1)
+                    user.user_must_change_password = False
                     user.save()
                     update_session_auth_hash(request, user)
-                    messages.success(request, "Password Changed Successfully")
+                    logging.debug(f"{request.user.username} User changed password successfully")
+                    messages.success(request, "Password changed successfully")
                     logout(request)
                     return JsonResponse({'status': 'success', 'message': 'Password Changed Successfully'})
                 else:
+                    logging.debug(f"{request.user.username} User changed password failed. Password does not match")
                     messages.warning(request, "Old Password does not match")
             else:
                 messages.warning(request, "New Password does not match")

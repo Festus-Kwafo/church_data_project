@@ -61,11 +61,8 @@ class IndexView(View):
             pre_sun_percent = ((int(latest_data.attendance.total) - int(pre_sun_data.attendance.total)) / int(pre_sun_data.attendance.total)) * 100
 
             # First_timers
-            first_timers_data = branch_data.filter(date__year=self.today.year,
-                                                   date__month=self.today.month).all().aggregate(
-                Sum('attendance__first_timers'))
-            last_month_first_timers_data = branch_data.filter(date__year=self.today.year,
-                                                              date__month=self.today.month - 1).all().aggregate(
+            first_timers_data = branch_data.filter(date__year=self.today.year, date__month=self.today.month).all().aggregate(Sum('attendance__first_timers'))
+            last_month_first_timers_data = branch_data.filter(date__year=self.today.year,date__month=self.today.month - 1).all().aggregate(
                 Sum('attendance__first_timers'))
             # Calulate Monthly percentage increase
             first_timers_month_inc_percent = ((first_timers_data.get(
@@ -84,6 +81,7 @@ class IndexView(View):
             last_month_consistency_data = branch_data.filter(date__year=self.today.year,
                                                              date__month=self.today.month - 1).all().aggregate(
                 Sum('consistency'))
+
             # Calulate Monthly percentage increase
             consistency_month_inc_percent = ((consistency_data.get(
                 'consistency__sum') - last_month_consistency_data.get(
@@ -94,8 +92,9 @@ class IndexView(View):
             consistency_pre_sun_percent = ((int(latest_data.consistency) - int(pre_sun_data.consistency)) / int(
                 pre_sun_data.consistency)) * 100
         except Exception:
-            print(traceback.format_exc())
-            messages.warning(request, 'Error occurred while processing data')
+            logger.debug("No data for previous month", extra={'user': request.user.branch_name})
+            logger.debug(traceback.format_exc())
+            messages.warning(request, 'There is no data in the previous month')
             return redirect('dashboard:sunday_attendance')
 
         context = {"user": user, "latest_data": latest_data, 'last_branch_data': last_branch_data,

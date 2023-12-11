@@ -3,6 +3,8 @@ import requests
 import os
 from dotenv import load_dotenv
 from random import randint
+import secrets
+import string
 
 load_dotenv()
 
@@ -35,3 +37,8 @@ def get_otp():
     digit = randint(100000, 999999)
     otp = '{}'.format(digit)
     return otp
+
+def generate_password():
+    alphabet = string.ascii_letters + string.digits
+    password = ''.join(secrets.choice(alphabet) for _ in range(8))
+    return password
